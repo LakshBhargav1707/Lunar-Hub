@@ -1,18 +1,24 @@
--- [[ LakshByte Custom Brainrot Steal Hub V13 - Compact Premium UI ]] --
+-- [[ Lunar Hub Duel Script V14 - Maximum Performance & No Limits ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
 
--- Old UI Cleanup
+local LocalPlayer = Players.LocalPlayer
+local TargetGuiParent = nil
 pcall(function()
-    if CoreGui:FindFirstChild("LunarHub") then CoreGui:FindFirstChild("LunarHub"):Destroy() end
-    if CoreGui:FindFirstChild("LunarMobileUI") then CoreGui:FindFirstChild("LunarMobileUI"):Destroy() end
+    if CoreGui and type(CoreGui) == "userdata" then TargetGuiParent = CoreGui end
+end)
+if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
+
+-- Cleanup Older Scripts
+pcall(function()
+    if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
+    if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
 end)
 
 -- [[ CONFIGURATION SYSTEM ]] --
-local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
@@ -34,7 +40,7 @@ local Config = {
     InfiniteJump = false
 }
 
--- Brainrot Check Utility
+-- Brainrot Detector Utility
 local function checkBrainrot()
     if Character then
         return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot") or 
@@ -43,7 +49,7 @@ local function checkBrainrot()
     return false
 end
 
--- Raycast-Buffered Detection-Safe Auto Grab
+-- Aggressive Instant Auto Grab (50 Studs Range Loop)
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
@@ -51,12 +57,12 @@ local function autoGrabLogic()
                 local handle = obj:FindFirstChild("Handle") or obj
                 if handle:IsA("BasePart") then
                     local distance = (RootPart.Position - handle.Position).Magnitude
-                    if distance < 35 then
+                    if distance < 50 then -- High aggressive range
+                        -- Instant forced pickup simulation
                         pcall(function()
-                            local touchSignal = firetouchinterest or pairs
-                            touchSignal(handle, RootPart, 0)
-                            task.wait()
-                            touchSignal(handle, RootPart, 1)
+                            firetouchinterest(handle, RootPart, 0)
+                            firetouchinterest(handle, RootPart, 1)
+                            obj.Parent = Character
                         end)
                         break
                     end
@@ -69,7 +75,7 @@ end
 -- [[ SCREEN LEFT SIDE MINI MOBILE UI SETUP ]] --
 local MobileGui = Instance.new("ScreenGui")
 MobileGui.Name = "LunarMobileUI"
-MobileGui.Parent = CoreGui
+MobileGui.Parent = TargetGuiParent
 MobileGui.ResetOnSpawn = false
 
 local Layout = Instance.new("Frame")
@@ -110,13 +116,13 @@ MiniSide.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 -- [[ COMPACT & SLIM MAIN PANEL ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
-MainGui.Parent = CoreGui
+MainGui.Parent = TargetGuiParent
 MainGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = MainGui
-MainFrame.Size = UDim2.new(0, 245, 0, 340) -- Slim Width & Optimized Height
+MainFrame.Size = UDim2.new(0, 245, 0, 340)
 MainFrame.Position = UDim2.new(0.5, -122, 0.5, -170)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 MainFrame.BorderSizePixel = 0
@@ -138,7 +144,7 @@ MainFrame.Draggable = true
 local MainTitle = Instance.new("TextLabel", HeaderFrame)
 MainTitle.Size = UDim2.new(1, 0, 1, 0)
 MainTitle.BackgroundTransparency = 1
-MainTitle.Text = "LUNAR HUB DUEL SCRIPT" -- Name Updated
+MainTitle.Text = "LUNAR HUB DUEL SCRIPT"
 MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
 MainTitle.TextSize = 13
@@ -175,7 +181,7 @@ local function createTextBoxInput(default, y, configKey)
     local box = Instance.new("TextBox")
     box.Parent = ScrollFrame
     box.Position = UDim2.new(0, 12, 0, y)
-    box.Size = UDim2.new(0, 215, 0, 28) -- Medium optimized size
+    box.Size = UDim2.new(0, 215, 0, 28)
     box.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     box.TextColor3 = Color3.fromRGB(255, 255, 255)
     box.PlaceholderText = default
@@ -204,9 +210,8 @@ createTextBoxInput("58", 140, "AfterGrabSpeed")
 
 createUIElementLabel("Side Selection & Mode", 180)
 
--- Medium Sized Left/Right/Manual Buttons
 local BtnLeft = Instance.new("TextButton", ScrollFrame)
-BtnLeft.Size = UDim2.new(0, 65, 0, 28) -- Medium sizing
+BtnLeft.Size = UDim2.new(0, 65, 0, 28)
 BtnLeft.Position = UDim2.new(0, 12, 0, 198)
 BtnLeft.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 BtnLeft.Text = "LEFT"
@@ -288,7 +293,7 @@ createUIElementLabel("Features", 238)
 
 local function createMainPanelToggle(name, y, configKey, callbackOn)
     local frameBtn = Instance.new("TextButton", ScrollFrame)
-    frameBtn.Size = UDim2.new(0, 215, 0, 30) -- Medium sizing
+    frameBtn.Size = UDim2.new(0, 215, 0, 30)
     frameBtn.Position = UDim2.new(0, 12, 0, y)
     frameBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     frameBtn.Text = "  " .. name .. ": OFF"
@@ -325,48 +330,71 @@ local toggleBat = createMainPanelToggle("Auto Bat + AimLock", 294, "AutoBat", fu
 end)
 
 MiniBat.MouseButton1Click:Connect(function() toggleBat() end)
-createMainPanelToggle("Infinite Jump (Safe Mode)", 330, "InfiniteJump")
+createMainPanelToggle("Infinite Jump (No Limits)", 330, "InfiniteJump")
 
--- [[ SECURE MOVEMENT & PHYSICS OVERRIDE ]] --
+-- [[ PURE AGGRESSIVE RAW PHYSICS TRACKS ]] --
+
+-- Velocity Controller Instance for Zero Reset Autoplay
+local AutoMover = Instance.new("BodyVelocity")
+AutoMover.MaxForce = Vector3.new(100000, 0, 100000)
+AutoMover.Velocity = Vector3.new(0, 0, 0)
 
 RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
+        -- Execute Grab Logic instantly when near
         if Config.AutoLoopSteal then
             autoGrabLogic()
         end
 
-        local targetMaxSpeed = Config.NormalSpeed
+        -- Determine Target Raw Velocity Speed
+        local activeSpeedLimit = Config.NormalSpeed
         if Config.AutoLoopSteal then
             if checkBrainrot() then
-                targetMaxSpeed = Config.AfterGrabSpeed
+                activeSpeedLimit = Config.AfterGrabSpeed
             else
-                targetMaxSpeed = Config.BeforeGrabSpeed
+                activeSpeedLimit = Config.BeforeGrabSpeed
             end
         end
 
-        if Humanoid.MoveDirection.Magnitude > 0 then
-            local adjustedDeltaOffset = Humanoid.MoveDirection * (targetMaxSpeed - 16) * 0.0155
-            RootPart.CFrame = RootPart.CFrame + adjustedDeltaOffset
+        -- Force standard unblocked manual walking speed boost
+        if Humanoid.MoveDirection.Magnitude > 0 and Config.PlayMode == "Manual" then
+            if AutoMover.Parent then AutoMover.Parent = nil end
+            local dynamicPush = Humanoid.MoveDirection * (activeSpeedLimit - 16) * 0.016
+            RootPart.CFrame = RootPart.CFrame + dynamicPush
         end
 
+        -- 🚀 FIX: Absolute Zero Reset Autoplay (Locks physics state to stop anti-cheat check)
         if Config.PlayMode == "Autoplay" then
-            local stepVector = Vector3.new(0, 0, 0)
-            if Config.SideSelection == "Left" then
-                stepVector = RootPart.CFrame.RightVector * -0.28
-            elseif Config.SideSelection == "Right" then
-                stepVector = RootPart.CFrame.RightVector * 0.28
+            if AutoMover.Parent ~= RootPart then 
+                AutoMover.Parent = RootPart 
             end
-            RootPart.CFrame = RootPart.CFrame + stepVector
+            
+            -- Keep character standing tall, no gravity clips
+            Humanoid.PlatformStand = false
+            
+            local velocityVector = Vector3.new(0, 0, 0)
+            if Config.SideSelection == "Left" then
+                velocityVector = RootPart.CFrame.RightVector * -activeSpeedLimit
+            elseif Config.SideSelection == "Right" then
+                velocityVector = RootPart.CFrame.RightVector * activeSpeedLimit
+            end
+            
+            -- Direct velocity locking bypasses coordinate shift detection
+            AutoMover.Velocity = Vector3.new(velocityVector.X, RootPart.Velocity.Y, velocityVector.Z)
+        else
+            if AutoMover.Parent then AutoMover.Parent = nil end
         end
+    else
+        if AutoMover.Parent then AutoMover.Parent = nil end
     end
 end)
 
--- Fully Encrypted Local Replication Weapon Controller
+-- Fully Encrypted Local Weapon AimLock Controller
 task.spawn(function()
     while true do
         if Config.AutoBat and checkBrainrot() and RootPart then
             local targetingCap = nil
-            local scanRange = 22
+            local scanRange = 25
 
             for _, scanPlayer in pairs(Players:GetPlayers()) do
                 if scanPlayer ~= LocalPlayer and scanPlayer.Character and scanPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -393,17 +421,17 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(0.04)
+        task.wait(0.02) -- Instant reaction loop
     end
 end)
 
--- Safe Micro-Interval High Jump
+-- No-Limit Infinite Jump Nudge
 local lastSafeJump = 0
 UIS.JumpRequest:Connect(function()
-    if Config.InfiniteJump and RootPart and (tick() - lastSafeJump) > 0.15 then
+    if Config.InfiniteJump and RootPart and (tick() - lastSafeJump) > 0.12 then
         lastSafeJump = tick()
-        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 4.5, 0)
+        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 5, 0)
     end
 end)
 
-print("Lunar Hub Duel Script: Compact Version Deployed!")
+print("Lunar Hub Duel Script V14: No Limitations Loaded!")
