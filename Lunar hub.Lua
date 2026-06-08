@@ -1,4 +1,4 @@
--- [[ LakshByte Custom Brainrot Steal Hub V7 Wrapper ]] --
+-- [[ LakshByte Custom Brainrot Steal Hub V8 Undetected Wrapper ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -28,11 +28,28 @@ local Config = {
     BeforeGrabSpeed = 50.5,
     AfterGrabSpeed = 58,
     SideSelection = "Left",
-    PlayMode = "Manual", -- "Autoplay" or "Manual"
+    PlayMode = "Manual", 
     AutoLoopSteal = false,
     AutoBat = false,
     InfiniteJump = false
 }
+
+-- Invisible Physics Body for Undetected Speed Bypass
+local SpeedForce = Instance.new("BodyVelocity")
+SpeedForce.MaxForce = Vector3.new(100000, 0, 100000) -- Only horizontal force, no vertical to prevent anti-cheat triggers
+SpeedForce.Velocity = Vector3.new(0, 0, 0)
+
+local function updateSpeedForce(targetSpeed)
+    if RootPart and Humanoid and Humanoid.MoveDirection.Magnitude > 0 then
+        if SpeedForce.Parent ~= RootPart then
+            SpeedForce.Parent = RootPart
+        end
+        -- Calculate clean horizontal velocity based on input direction
+        SpeedForce.Velocity = Humanoid.MoveDirection * targetSpeed
+    else
+        SpeedForce.Velocity = Vector3.new(0, 0, 0)
+    end
+end
 
 -- Brainrot Check Utility
 local function checkBrainrot()
@@ -52,11 +69,9 @@ local function autoGrabLogic()
                 if handle:IsA("BasePart") then
                     local distance = (RootPart.Position - handle.Position).Magnitude
                     if distance < 30 then
-                        -- Safe CFrame Teleport sequence to instant pickup without trigger check
-                        local currentCFrame = RootPart.CFrame
-                        RootPart.CFrame = handle.CFrame
-                        task.wait(0.03)
-                        RootPart.CFrame = currentCFrame
+                        -- Smooth lerp sequence instead of direct CFrame overwrite to stay undetected
+                        local targetPos = handle.CFrame
+                        RootPart.CFrame = RootPart.CFrame:Lerp(targetPos, 0.5)
                         break
                     end
                 end
@@ -74,7 +89,7 @@ MobileGui.ResetOnSpawn = false
 local Layout = Instance.new("Frame")
 Layout.Parent = MobileGui
 Layout.Size = UDim2.new(0, 190, 0, 45)
-Layout.Position = UDim2.new(0, 20, 0, 110) -- Exact Top Left positions
+Layout.Position = UDim2.new(0, 20, 0, 110)
 Layout.BackgroundTransparency = 1
 
 local UIList = Instance.new("UIListLayout", Layout)
@@ -104,7 +119,7 @@ end
 local MiniToggle = createMiniButton("ToggleBtn", "|||", 1)
 local MiniBat = createMiniButton("BatBtn", "BAT", 2)
 local MiniSide = createMiniButton("SideBtn", "LEFT", 3)
-MiniSide.BackgroundColor3 = Color3.fromRGB(115, 90, 230) -- Highlighted default side
+MiniSide.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
 -- [[ MAIN ADVANCED PANEL DESIGN ]] --
 local MainGui = Instance.new("ScreenGui")
@@ -122,17 +137,14 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
 
--- Sub-Header/Border glow
 local FrameGlow = Instance.new("UIStroke", MainFrame)
 FrameGlow.Color = Color3.fromRGB(40, 40, 50)
 FrameGlow.Thickness = 1.5
 
--- Handle Mobile View Hiding Toggle
 MiniToggle.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
 end)
 
--- Structural Element Helpers
 local function createUIElementLabel(text, y)
     local lbl = Instance.new("TextLabel")
     lbl.Parent = MainFrame
@@ -168,16 +180,16 @@ local function createTextBoxInput(default, y, configKey)
     return box
 end
 
--- Header Title
+-- Header Title FIXED to Lunar Hub
 local MainTitle = Instance.new("TextLabel", MainFrame)
 MainTitle.Size = UDim2.new(1, 0, 0, 45)
-MainTitle.Text = "REVUL HUB"
-MainTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+MainTitle.Text = "LUNAR HUB"
+MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
-MainTitle.TextSize = 16
+MainTitle.TextSize = 18
 MainTitle.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 
--- [[ CREATING PANEL INPUTS (Image Style Setup) ]] --
+-- PANEL INPUTS
 createUIElementLabel("Speed Control", 60)
 createTextBoxInput("16", 80, "NormalSpeed")
 
@@ -189,11 +201,10 @@ createTextBoxInput("58", 220, "AfterGrabSpeed")
 
 createUIElementLabel("Side Selection & Mode", 275)
 
--- Multi-Selection Mechanics Framework (Left, Right, Manual Mode Selection)
 local BtnLeft = Instance.new("TextButton", MainFrame)
 BtnLeft.Size = UDim2.new(0, 75, 0, 36)
 BtnLeft.Position = UDim2.new(0, 20, 0, 295)
-BtnLeft.BackgroundColor3 = Color3.fromRGB(115, 90, 230) -- Highlighted default
+BtnLeft.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 BtnLeft.Text = "LEFT"
 BtnLeft.Font = Enum.Font.GothamBold
 BtnLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -213,7 +224,6 @@ BtnManual.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 BtnManual.Text = "MANUAL"
 
 local function updateSelectionButtons()
-    -- Reset Base Visuals
     BtnLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     BtnRight.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     BtnManual.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
@@ -258,7 +268,6 @@ BtnManual.MouseButton1Click:Connect(function()
     updateSelectionButtons()
 end)
 
--- Mobile Quick-Side Toggle Setup
 MiniSide.MouseButton1Click:Connect(function()
     if Config.PlayMode == "Manual" then
         Config.PlayMode = "Autoplay"
@@ -321,15 +330,14 @@ createMainPanelToggle("Infinite Jump (No Fall Limit)", 465, "InfiniteJump")
 
 -- [[ CORE ENGINE RUNNING TRACKS ]] --
 
--- Ultimate Physics Bypass Speed Track (Anti-Cheat Proof)
+-- Undetected Heartbeat Loop
 RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
-        -- Execute Auto Grab Loop if Steal is Active
         if Config.AutoLoopSteal then
             autoGrabLogic()
         end
 
-        -- Calculate Exact Target Velocity Vector Base
+        -- Calculate Target Velocity Speed
         local targetVelocitySpeed = Config.NormalSpeed
         if Config.AutoLoopSteal then
             if checkBrainrot() then
@@ -339,21 +347,20 @@ RunService.Heartbeat:Connect(function()
             end
         end
 
-        -- Safe Position Interpolation Hack instead of direct Velocity modification
-        if Humanoid.MoveDirection.Magnitude > 0 then
-            -- Frame rate dynamic scale calculation to completely isolate anti-cheat trigger limits
-            local stepFactor = (targetVelocitySpeed * 0.0087)
-            RootPart.CFrame = RootPart.CFrame + (Humanoid.MoveDirection * stepFactor)
-        end
+        -- Bypassed Speed Application via BodyVelocity
+        updateSpeedForce(targetVelocitySpeed)
 
-        -- Autoplay Edge Movement Simulation
+        -- Autoplay Smooth Micro-Drift (No direct CFrame spikes to avoid reset)
         if Config.PlayMode == "Autoplay" then
             if Config.SideSelection == "Left" then
-                RootPart.CFrame = RootPart.CFrame * CFrame.new(-0.48, 0, 0)
+                RootPart.CFrame = RootPart.CFrame * CFrame.new(-0.35, 0, 0)
             elseif Config.SideSelection == "Right" then
-                RootPart.CFrame = RootPart.CFrame * CFrame.new(0.48, 0, 0)
+                RootPart.CFrame = RootPart.CFrame * CFrame.new(0.35, 0, 0)
             end
         end
+    else
+        -- Clean up physics force on death
+        SpeedForce.Velocity = Vector3.new(0, 0, 0)
     end
 end)
 
@@ -366,7 +373,7 @@ task.spawn(function()
                     local targetRoot = targetPlayer.Character.HumanoidRootPart
                     local targetDistance = (RootPart.Position - targetRoot.Position).Magnitude
                     
-                    if targetDistance <= 18 then -- Duel Strike radius limit
+                    if targetDistance <= 18 then 
                         local activeTool = Character:FindFirstChildOfClass("Tool")
                         if activeTool then 
                             activeTool:Activate() 
@@ -375,17 +382,16 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(0.08) -- Faster response strike iteration rate
+        task.wait(0.08)
     end
 end)
 
--- Anti-Cheat Proof Infinite Flight Jump
-local lastJumpTick = 0
+-- Completely Undetected Infinite Jump System (Altered JumpState Loop)
 UIS.JumpRequest:Connect(function()
-    if Config.InfiniteJump and RootPart and (tick() - lastJumpTick) > 0.07 then
-        lastJumpTick = tick()
-        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 5.2, 0)
+    if Config.InfiniteJump and Humanoid then
+        -- Anti-cheat reset workaround: Change the internal humanoid state instead of adding rapid CFrame force
+        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
-print("Revul Model Duel Panel V7 Fully Injected!")
+print("Lunar Hub Undetected Bypass V8 Loaded!")
