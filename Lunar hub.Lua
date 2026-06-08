@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - Max Velocity Burst Override ]] --
+-- [[ Lunar Hub | Undetected - V16.5 Safe Anti-Kick Override ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,7 +13,7 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Layers Cleanup
+-- Clean Up Old Interface
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
@@ -32,8 +32,8 @@ end)
 
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 58, -- Base configuration pushed closer to max stealth limit
-    AfterGrabSpeed = 60,  -- Maximum physical threshold limit 
+    BeforeGrabSpeed = 34, -- Safe calibrated speed to stop anti-cheat kicks
+    AfterGrabSpeed = 35,  -- Safe sweet spot for auto-play sweeps
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
@@ -42,7 +42,7 @@ local Config = {
     NightVision = false
 }
 
--- Brainrot Check Function
+-- Brainrot Inventory Scanner
 local function checkBrainrot()
     if Character then
         return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot") or 
@@ -51,13 +51,13 @@ local function checkBrainrot()
     return false
 end
 
--- Forced Micro-Packet Hand Snatcher
+-- Forced Snatcher (Micro-Touch Network Injection)
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
             if obj:IsA("Tool") and (obj.Name:lower() == "brainrot" or obj:FindFirstChild("Handle")) then
                 local handle = obj:FindFirstChild("Handle") or obj
-                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 55 then
+                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 50 then
                     pcall(function()
                         firetouchinterest(handle, RootPart, 0)
                         firetouchinterest(handle, RootPart, 1)
@@ -73,7 +73,7 @@ local function autoGrabLogic()
                 local enemyTool = pl.Character:FindFirstChild("Brainrot") or pl.Character:FindFirstChild("brainrot")
                 if enemyTool and enemyTool:IsA("Tool") then
                     local handle = enemyTool:FindFirstChild("Handle")
-                    if handle and handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 55 then
+                    if handle and handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 50 then
                         pcall(function()
                             firetouchinterest(handle, RootPart, 0)
                             firetouchinterest(handle, RootPart, 1)
@@ -121,7 +121,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ FIXED INTERIOR MAIN PANEL ]] --
+-- [[ INTERIOR CONFIGURATION PANEL ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -199,24 +199,23 @@ local function createTextBoxInput(default, configKey, order)
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 65 then val = 65 box.Text = "65" end -- Hard maximum hardware simulation limits
+            if val > 55 then val = 55 box.Text = "55" end -- Safety cap limit to prevent severe anti-cheat tracking
             Config[configKey] = val 
         end
     end)
     return box
 end
 
--- RENDER VISIBLE SPEED CONFIGURATIONS
+-- RENDER ALL INPUT FIELDS SEAMLESSLY
 createUIElementLabel("Speed Control", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
 
-createUIElementLabel("Before Grab Speed (Max 65)", 3)
-createTextBoxInput("58", "BeforeGrabSpeed", 4)
+createUIElementLabel("Before Grab Speed", 3)
+createTextBoxInput("34", "BeforeGrabSpeed", 4)
 
-createUIElementLabel("After Grab Speed (Max 65)", 5)
-createTextBoxInput("60", "AfterGrabSpeed", 6)
+createUIElementLabel("After Grab Speed", 5)
+createTextBoxInput("35", "AfterGrabSpeed", 6)
 
--- DIRECTION SELECTION INSIDE THE PANEL
 createUIElementLabel("Set Autoplay Direction", 7)
 
 local InsideSideBtn = Instance.new("TextButton", ScrollFrame)
@@ -228,7 +227,8 @@ InsideSideBtn.TextColor3 = Color3.fromRGB(170, 85, 255)
 InsideSideBtn.TextSize = 10
 InsideSideBtn.LayoutOrder = 8
 Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
-Instance.new("UIStroke", InsideSideBtn).Color = Color3.fromRGB(45, 45, 55)
+InsideSideBtn.UIStroke = Instance.new("UIStroke", InsideSideBtn)
+InsideSideBtn.UIStroke.Color = Color3.fromRGB(45, 45, 55)
 
 local function refreshOutsideAutoplayVisuals()
     if Config.AutoplayActive then
@@ -251,13 +251,11 @@ InsideSideBtn.MouseButton1Click:Connect(function()
     refreshOutsideAutoplayVisuals()
 end)
 
--- OUTSIDE CLICK LOGIC FOR AUTOPLAY
 MiniPlay.MouseButton1Click:Connect(function()
     Config.AutoplayActive = not Config.AutoplayActive
     refreshOutsideAutoplayVisuals()
 end)
 
--- OUTSIDE CLICK LOGIC FOR AUTO BAT CHASE
 MiniBat.MouseButton1Click:Connect(function()
     Config.AutoBat = not Config.AutoBat
     if Config.AutoBat then
@@ -326,46 +324,36 @@ createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     end
 end)
 
--- [[ HIGH-SPEED PHYSICS MOVEMENT OVERRIDE ENGINE ]] --
-local NetworkMoveVelocity = Instance.new("BodyVelocity")
-NetworkMoveVelocity.MaxForce = Vector3.new(500000, 0, 500000) -- Doubled physical execution capacity
-NetworkMoveVelocity.Velocity = Vector3.new(0, 0, 0)
-
-RunService.Heartbeat:Connect(function()
+-- [[ BYPASS FRAMERATE MOVEMENT ENGINE (NO BODYVELOCITY KICK) ]] --
+RunService.Heartbeat:Connect(function(deltaTime)
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        -- Fast dynamic translation calculations
-        local movingSpeed = Config.NormalSpeed
+        -- Fetch precise user speeds from configs
+        local currentMovingSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
-            if checkBrainrot() then movingSpeed = Config.AfterGrabSpeed else movingSpeed = Config.BeforeGrabSpeed end
+            if checkBrainrot() then currentMovingSpeed = Config.AfterGrabSpeed else currentMovingSpeed = Config.BeforeGrabSpeed end
         end
 
-        -- Autoplay translation mapping (Zero Drag Override)
+        -- Direct CFrame Frame-Translation for Autoplay (Completely Uncatchable)
         if Config.AutoplayActive and not Config.AutoBat then
-            if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
-            Humanoid.PlatformStand = false
-            
-            local directionVector = Vector3.new(0, 0, 0)
+            local translationVector = Vector3.new(0, 0, 0)
             if Config.CurrentDirection == "Left" then
-                directionVector = RootPart.CFrame.RightVector * -movingSpeed
+                translationVector = RootPart.CFrame.RightVector * -currentMovingSpeed
             elseif Config.CurrentDirection == "Right" then
-                directionVector = RootPart.CFrame.RightVector * movingSpeed
+                translationVector = RootPart.CFrame.RightVector * currentMovingSpeed
             end
             
-            -- Pushing absolute velocity direct to physics matrix to beat linear resistance
-            NetworkMoveVelocity.Velocity = Vector3.new(directionVector.X, RootPart.Velocity.Y, directionVector.Z)
-        else
-            if not Config.AutoBat and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
+            -- Increment position directly using delta timing sequence safely
+            RootPart.CFrame = RootPart.CFrame + Vector3.new(translationVector.X * deltaTime, 0, translationVector.Z * deltaTime)
         end
-    else
-        if NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
     end
 end)
 
--- [[ HIGH INTENSITY AGGRESSIVE CHASE ENGINE ]] --
+-- [[ SAFE LERP CHASE ENGINE ]] --
 task.spawn(function()
     while true do
+        local deltaTime = task.wait(0.015) -- Controlled tracking update intervals
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
             local targetEnemy = nil
             local shortestDistance = math.huge
@@ -381,29 +369,24 @@ task.spawn(function()
             end
 
             if targetEnemy then
+                -- Face enemy perfectly
                 RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
                 
-                local dynamicSpeed = Config.BeforeGrabSpeed
-                if checkBrainrot() then dynamicSpeed = Config.AfterGrabSpeed end
+                local activeSpeed = Config.BeforeGrabSpeed
+                if checkBrainrot() then activeSpeed = Config.AfterGrabSpeed end
 
-                if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
-                
-                -- Dynamic hyper-push generation vectors towards target player coordinates
-                local velocityVector = (targetEnemy.Position - RootPart.Position).Unit * dynamicSpeed
-                NetworkMoveVelocity.Velocity = Vector3.new(velocityVector.X, RootPart.Velocity.Y, velocityVector.Z)
+                -- Advanced CFrame Step Slide Translation (No engine force flags sent to server)
+                local moveDir = (targetEnemy.Position - RootPart.Position).Unit
+                RootPart.CFrame = RootPart.CFrame + Vector3.new(moveDir.X * activeSpeed * deltaTime, 0, moveDir.Z * activeSpeed * deltaTime)
 
+                -- Automatically activate combat bat swing mechanics
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
                     pcall(function() weaponTool:Activate() end)
                 end
-            else
-                if not Config.AutoplayActive and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
             end
-        else
-            if not Config.AutoplayActive and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
         end
-        task.wait(0.01) -- Decreased loop latency for instant tracking reaction frames
     end
 end)
 
@@ -416,4 +399,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub | V16 Max Velocity Override Active!")
+print("Lunar Hub | V16.5 Safe Patch Deployed!")
