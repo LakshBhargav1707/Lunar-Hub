@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - V17.0 Ultimate Interface Reset ]] --
+-- [[ Lunar Hub | Undetected - V18.0 Tactical X-Ray & Night Vision Patch ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,7 +13,7 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Clean Up EVERY Previous Layer
+-- Clean Up Previous Instances Completely
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
@@ -32,14 +32,23 @@ end)
 
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 34, 
-    AfterGrabSpeed = 35,  
+    BeforeGrabSpeed = 38, 
+    AfterGrabSpeed = 40,  
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
     AutoBat = false,
     InfiniteJump = false,
     NightVision = false
+}
+
+-- Default Lighting Cache for smooth restoration
+local OriginalLightingCache = {
+    Ambient = Lighting.Ambient,
+    OutdoorAmbient = Lighting.OutdoorAmbient,
+    ClockTime = Lighting.ClockTime,
+    Brightness = Lighting.Brightness,
+    Exposure = Lighting.ExposureCompensation
 }
 
 -- Brainrot Inventory Scanner
@@ -51,13 +60,13 @@ local function checkBrainrot()
     return false
 end
 
--- Forced Snatcher Logic
+-- Snatcher Mechanics (Network Injected Handlers)
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
             if obj:IsA("Tool") and (obj.Name:lower() == "brainrot" or obj:FindFirstChild("Handle")) then
                 local handle = obj:FindFirstChild("Handle") or obj
-                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 50 then
+                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 55 then
                     pcall(function()
                         firetouchinterest(handle, RootPart, 0)
                         firetouchinterest(handle, RootPart, 1)
@@ -73,7 +82,7 @@ local function autoGrabLogic()
                 local enemyTool = pl.Character:FindFirstChild("Brainrot") or pl.Character:FindFirstChild("brainrot")
                 if enemyTool and enemyTool:IsA("Tool") then
                     local handle = enemyTool:FindFirstChild("Handle")
-                    if handle and handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 50 then
+                    if handle and handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 55 then
                         pcall(function()
                             firetouchinterest(handle, RootPart, 0)
                             firetouchinterest(handle, RootPart, 1)
@@ -123,7 +132,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ INTERIOR MAIN PANEL (NO SCROLL GRID EDITIONS) ]] --
+-- [[ INTERIOR MAIN PANEL ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -132,7 +141,7 @@ MainGui.DisplayOrder = 99998
 
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 210, 0, 345) -- Balanced fixed height
+MainFrame.Size = UDim2.new(0, 210, 0, 345)
 MainFrame.Position = UDim2.new(0.5, -105, 0.5, -172)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 MainFrame.Active = true
@@ -153,7 +162,6 @@ MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
 MainTitle.TextSize = 11
 
--- Container to hold layout directly avoiding clipping/scrolling bugs
 local Container = Instance.new("Frame", MainFrame)
 Container.Size = UDim2.new(1, -20, 1, -42)
 Container.Position = UDim2.new(0, 10, 0, 38)
@@ -196,22 +204,20 @@ local function createTextBoxInput(default, configKey, order)
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 55 then val = 55 box.Text = "55" end 
+            if val > 65 then val = 65 box.Text = "65" end 
             Config[configKey] = val 
         end
     end)
     return box
 end
 
--- RENDER SPEED CONTROLS
+-- RENDER SPEED INPUTS
 createUIElementLabel("Speed Control", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
-
 createUIElementLabel("Before Grab Speed", 3)
-createTextBoxInput("34", "BeforeGrabSpeed", 4)
-
+createTextBoxInput("38", "BeforeGrabSpeed", 4)
 createUIElementLabel("After Grab Speed", 5)
-createTextBoxInput("35", "AfterGrabSpeed", 6)
+createTextBoxInput("40", "AfterGrabSpeed", 6)
 
 createUIElementLabel("Set Autoplay Direction", 7)
 
@@ -264,7 +270,6 @@ end)
 
 createUIElementLabel("Features Toggle", 9)
 
--- FIXED INDEPENDENT TOGGLE FACTORY
 local function createMainPanelToggle(name, configKey, order, callback)
     local frameBtn = Instance.new("TextButton", Container)
     frameBtn.Size = UDim2.new(1, 0, 0, 26)
@@ -293,28 +298,46 @@ local function createMainPanelToggle(name, configKey, order, callback)
     end)
 end
 
--- ALL THREE BUTTONS RESTORED CORRECTLY HERE
 createMainPanelToggle("Auto Loop Steal", "AutoLoopSteal", 10)
 createMainPanelToggle("Infinite Jump", "InfiniteJump", 11)
 
+-- [[ IMPROVED TACTICAL X-RAY & NIGHTVISION SYSTEM ]] --
 createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     if state then
-        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+        -- Inject Clear High Exposure Midnight Atmosphere
+        Lighting.Ambient = Color3.fromRGB(35, 40, 65)
+        Lighting.OutdoorAmbient = Color3.fromRGB(30, 30, 45)
+        Lighting.ClockTime = 0 -- Forces Deep Midnight Atmosphere
+        Lighting.Brightness = 0 -- Disables harsh sun flares shadowing bases
+        Lighting.ExposureCompensation = 3.5 -- Dynamic night vision gamma boost
+
         task.spawn(function()
             while Config.NightVision do
                 for _, part in pairs(Workspace:GetDescendants()) do
                     if part:IsA("BasePart") and not part.Parent:FindFirstChildOfClass("Humanoid") and part.Name ~= "Terrain" then
-                        if not part:GetAttribute("OldTrans") then part:SetAttribute("OldTrans", part.Transparency) end
-                        part.Transparency = 0.55
+                        -- IGNORE TREE/LEAF COMPONENTS ENTIRELY FOR ULTRA CLARITY
+                        local parentName = part.Parent.Name:lower()
+                        local partName = part.Name:lower()
+                        
+                        if not parentName:find("tree") and not partName:find("leaf") and not partName:find("leaves") and not parentName:find("foliage") and not partName:find("branch") and not parentName:find("bush") then
+                            if not part:GetAttribute("OldTrans") then 
+                                part:SetAttribute("OldTrans", part.Transparency) 
+                            end
+                            part.Transparency = 0.70 -- High clarity transparent base walls
+                        end
                     end
                 end
-                task.wait(2)
+                task.wait(1.5)
             end
         end)
     else
-        Lighting.Ambient = Color3.fromRGB(130, 130, 130)
-        Lighting.OutdoorAmbient = Color3.fromRGB(130, 130, 130)
+        -- Clean Restoration to Original Atmosphere Assets
+        Lighting.Ambient = OriginalLightingCache.Ambient
+        Lighting.OutdoorAmbient = OriginalLightingCache.OutdoorAmbient
+        Lighting.ClockTime = OriginalLightingCache.ClockTime
+        Lighting.Brightness = OriginalLightingCache.Brightness
+        Lighting.ExposureCompensation = OriginalLightingCache.Exposure
+
         for _, part in pairs(Workspace:GetDescendants()) do
             if part:IsA("BasePart") and part:GetAttribute("OldTrans") then
                 part.Transparency = part:GetAttribute("OldTrans")
@@ -324,32 +347,51 @@ createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     end
 end)
 
--- [[ BYPASS MOVEMENT ENGINE ]] --
-RunService.Heartbeat:Connect(function(deltaTime)
+-- [[ HYBRID ANTI-RESET WALKSPEED CORE ENGINE ]] --
+local DynamicVelocityForce = Instance.new("LinearVelocity")
+local DirectAttachment = Instance.new("Attachment")
+
+RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        local currentMovingSpeed = Config.NormalSpeed
+        local activeTargetSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
-            if checkBrainrot() then currentMovingSpeed = Config.AfterGrabSpeed else currentMovingSpeed = Config.BeforeGrabSpeed end
+            if checkBrainrot() then activeTargetSpeed = Config.AfterGrabSpeed else activeTargetSpeed = Config.BeforeGrabSpeed end
         end
 
         if Config.AutoplayActive and not Config.AutoBat then
-            local translationVector = Vector3.new(0, 0, 0)
-            if Config.CurrentDirection == "Left" then
-                translationVector = RootPart.CFrame.RightVector * -currentMovingSpeed
-            elseif Config.CurrentDirection == "Right" then
-                translationVector = RootPart.CFrame.RightVector * currentMovingSpeed
+            if DirectAttachment.Parent ~= RootPart then DirectAttachment.Parent = RootPart end
+            if DynamicVelocityForce.Parent ~= RootPart then
+                DynamicVelocityForce.Attachment0 = DirectAttachment
+                DynamicVelocityForce.MaxForce = math.huge
+                DynamicVelocityForce.Parent = RootPart
             end
-            RootPart.CFrame = RootPart.CFrame + Vector3.new(translationVector.X * deltaTime, 0, translationVector.Z * deltaTime)
+            
+            local runVector = Vector3.new(0, 0, 0)
+            if Config.CurrentDirection == "Left" then
+                runVector = RootPart.CFrame.RightVector * -activeTargetSpeed
+            elseif Config.CurrentDirection == "Right" then
+                runVector = RootPart.CFrame.RightVector * activeTargetSpeed
+            end
+            
+            DynamicVelocityForce.VectorVelocity = Vector3.new(runVector.X, RootPart.Velocity.Y, runVector.Z)
+            Humanoid.WalkSpeed = activeTargetSpeed 
+        else
+            if not Config.AutoBat then
+                if DynamicVelocityForce.Parent then DynamicVelocityForce.Parent = nil end
+                Humanoid.WalkSpeed = Config.NormalSpeed
+            end
         end
+    else
+        if DynamicVelocityForce.Parent then DynamicVelocityForce.Parent = nil end
     end
 end)
 
--- [[ LERP CHASE BAT CONTROLLER ]] --
+-- [[ STABLE SMOOTH BAT TRACKING LOOP ]] --
 task.spawn(function()
     while true do
-        local deltaTime = task.wait(0.015)
+        task.wait(0.01)
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
             local targetEnemy = nil
             local shortestDistance = math.huge
@@ -367,18 +409,30 @@ task.spawn(function()
             if targetEnemy then
                 RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
                 
-                local activeSpeed = Config.BeforeGrabSpeed
-                if checkBrainrot() then activeSpeed = Config.AfterGrabSpeed end
+                local safeBatSpeed = Config.BeforeGrabSpeed
+                if checkBrainrot() then safeBatSpeed = Config.AfterGrabSpeed end
 
-                local moveDir = (targetEnemy.Position - RootPart.Position).Unit
-                RootPart.CFrame = RootPart.CFrame + Vector3.new(moveDir.X * activeSpeed * deltaTime, 0, moveDir.Z * activeSpeed * deltaTime)
+                if DirectAttachment.Parent ~= RootPart then DirectAttachment.Parent = RootPart end
+                if DynamicVelocityForce.Parent ~= RootPart then
+                    DynamicVelocityForce.Attachment0 = DirectAttachment
+                    DynamicVelocityForce.MaxForce = math.huge
+                    DynamicVelocityForce.Parent = RootPart
+                end
+
+                local directHeading = (targetEnemy.Position - RootPart.Position).Unit * safeBatSpeed
+                DynamicVelocityForce.VectorVelocity = Vector3.new(directHeading.X, RootPart.Velocity.Y, directHeading.Z)
+                Humanoid.WalkSpeed = safeBatSpeed
 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
                     pcall(function() weaponTool:Activate() end)
                 end
+            else
+                if not Config.AutoplayActive and DynamicVelocityForce.Parent then DynamicVelocityForce.Parent = nil end
             end
+        else
+            if not Config.AutoplayActive and DynamicVelocityForce.Parent then DynamicVelocityForce.Parent = nil end
         end
     end
 end)
@@ -392,4 +446,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub | Clean Interface Reset Applied Successfully!")
+print("Lunar Hub | V18.0 Tactical Atmosphere Active!")
