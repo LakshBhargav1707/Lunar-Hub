@@ -1,4 +1,4 @@
--- [[ Lunar Hub Duel Script V15.2 - Forced Auto Steal Snatcher ]] --
+-- [[ Lunar Hub | Undetected - Client Override ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,7 +13,7 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Cleanup Previous UI
+-- Previous Layers Cleanup
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
@@ -32,16 +32,17 @@ end)
 
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 50.5,
-    AfterGrabSpeed = 58,
-    SideSelection = "None",
+    BeforeGrabSpeed = 38, -- Strict 38 speed to fully prevent sudden server-side trip resets
+    AfterGrabSpeed = 38,
+    CurrentDirection = "Right", -- Defaults to Right as requested
+    AutoplayActive = false,
     AutoLoopSteal = false,
     AutoBat = false,
     InfiniteJump = false,
     NightVision = false
 }
 
--- Brainrot Check Utility
+-- Brainrot Check Function
 local function checkBrainrot()
     if Character then
         return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot") or 
@@ -50,42 +51,34 @@ local function checkBrainrot()
     return false
 end
 
--- 🔥 ULTRA AGGRESSIVE OPPONENT HAND SNATCHER (Forced Auto Steal)
+-- Forced Micro-Packet Hand Snatcher
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
-        -- 1. Check inside Workspace (Grounded items)
         for _, obj in pairs(Workspace:GetChildren()) do
             if obj:IsA("Tool") and (obj.Name:lower() == "brainrot" or obj:FindFirstChild("Handle")) then
                 local handle = obj:FindFirstChild("Handle") or obj
-                if handle:IsA("BasePart") then
-                    local distance = (RootPart.Position - handle.Position).Magnitude
-                    if distance < 55 then
-                        pcall(function()
-                            firetouchinterest(handle, RootPart, 0)
-                            firetouchinterest(handle, RootPart, 1)
-                            obj.Parent = Character
-                        end)
-                        break
-                    end
+                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 55 then
+                    pcall(function()
+                        firetouchinterest(handle, RootPart, 0)
+                        firetouchinterest(handle, RootPart, 1)
+                        obj.Parent = Character
+                    end)
+                    break
                 end
             end
         end
 
-        -- 2. Check inside Other Players (Opponent Hand Snatch)
         for _, pl in pairs(Players:GetPlayers()) do
             if pl ~= LocalPlayer and pl.Character then
                 local enemyTool = pl.Character:FindFirstChild("Brainrot") or pl.Character:FindFirstChild("brainrot")
                 if enemyTool and enemyTool:IsA("Tool") then
                     local handle = enemyTool:FindFirstChild("Handle")
-                    if handle and handle:IsA("BasePart") then
-                        local distance = (RootPart.Position - handle.Position).Magnitude
-                        if distance < 55 then -- Snatches from opponent hand instantly when near
-                            pcall(function()
-                                firetouchinterest(handle, RootPart, 0)
-                                firetouchinterest(handle, RootPart, 1)
-                                enemyTool.Parent = Character -- Forces tool into your hand
-                            end)
-                        end
+                    if handle and handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 55 then
+                        pcall(function()
+                            firetouchinterest(handle, RootPart, 0)
+                            firetouchinterest(handle, RootPart, 1)
+                            enemyTool.Parent = Character
+                        end)
                     end
                 end
             end
@@ -93,41 +86,54 @@ local function autoGrabLogic()
     end
 end
 
--- [[ SCREEN LEFT SIDE - TINY MOBILE TOGGLE ]] --
+-- [[ OUTSIDE THE PANEL - TINY MOBILE CONTROLS ]] --
 local MobileGui = Instance.new("ScreenGui")
 MobileGui.Name = "LunarMobileUI"
 MobileGui.Parent = TargetGuiParent
 MobileGui.ResetOnSpawn = false
 
-local MiniToggle = Instance.new("TextButton", MobileGui)
-MiniToggle.Size = UDim2.new(0, 35, 0, 26)
-MiniToggle.Position = UDim2.new(0, 15, 0, 120)
-MiniToggle.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-MiniToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-MiniToggle.Font = Enum.Font.GothamBold
-MiniToggle.Text = "|||"
-MiniToggle.TextSize = 11
-Instance.new("UICorner", MiniToggle).CornerRadius = UDim.new(0, 5)
-Instance.new("UIStroke", MiniToggle).Color = Color3.fromRGB(50, 50, 60)
+local Layout = Instance.new("Frame", MobileGui)
+Layout.Size = UDim2.new(0, 160, 0, 35)
+Layout.Position = UDim2.new(0, 15, 0, 120)
+Layout.BackgroundTransparency = 1
 
--- [[ ULTRA SLIM & MICRO MAIN PANEL ]] --
+local UIList = Instance.new("UIListLayout", Layout)
+UIList.FillDirection = Enum.FillDirection.Horizontal
+UIList.SortOrder = Enum.SortOrder.LayoutOrder
+UIList.Padding = UDim.new(0, 6)
+
+local function createMiniControlBtn(text, order)
+    local btn = Instance.new("TextButton", Layout)
+    btn.Size = UDim2.new(0, 48, 0, 28)
+    btn.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.TextSize = 11
+    btn.LayoutOrder = order
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", btn).Color = Color3.fromRGB(50, 50, 60)
+    return btn
+end
+
+local MiniToggle = createMiniControlBtn("|||", 1)
+local MiniBat = createMiniControlBtn("BAT", 2)
+local MiniPlay = createMiniControlBtn("RIGHT", 3) -- Starts with RIGHT text outside
+MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+
+-- [[ ULTRA MICRO INTERIOR MAIN PANEL ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
 MainGui.ResetOnSpawn = false
 
-local MainFrame = Instance.new("Frame")
+local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Parent = MainGui
-MainFrame.Size = UDim2.new(0, 195, 0, 310)
-MainFrame.Position = UDim2.new(0.5, -97, 0.5, -155)
+MainFrame.Size = UDim2.new(0, 195, 0, 290)
+MainFrame.Position = UDim2.new(0.5, -97, 0.5, -145)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-MainFrame.BorderSizePixel = 0
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
-
-local FrameGlow = Instance.new("UIStroke", MainFrame)
-FrameGlow.Color = Color3.fromRGB(55, 45, 90)
-FrameGlow.Thickness = 1.2
+Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(55, 45, 90)
 
 local HeaderFrame = Instance.new("Frame", MainFrame)
 HeaderFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -140,7 +146,7 @@ MainFrame.Draggable = true
 local MainTitle = Instance.new("TextLabel", HeaderFrame)
 MainTitle.Size = UDim2.new(1, 0, 1, 0)
 MainTitle.BackgroundTransparency = 1
-MainTitle.Text = "LUNAR HUB DUEL V15.2"
+MainTitle.Text = "Lunar Hub | Undetected" -- Title Updated / No Version
 MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
 MainTitle.TextSize = 11
@@ -150,17 +156,14 @@ ScrollFrame.Size = UDim2.new(1, 0, 1, -36)
 ScrollFrame.Position = UDim2.new(0, 0, 0, 34)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.ClipsDescendants = true
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 420)
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 380)
 ScrollFrame.ScrollBarThickness = 2
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(115, 90, 230)
 
-MiniToggle.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-end)
+MiniToggle.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
 local function createUIElementLabel(text, y)
-    local lbl = Instance.new("TextLabel")
-    lbl.Parent = ScrollFrame
+    local lbl = Instance.new("TextLabel", ScrollFrame)
     lbl.Position = UDim2.new(0, 10, 0, y)
     lbl.Size = UDim2.new(0, 175, 0, 14)
     lbl.BackgroundTransparency = 1
@@ -172,89 +175,58 @@ local function createUIElementLabel(text, y)
     return lbl
 end
 
-local function createTextBoxInput(default, y, configKey)
-    local box = Instance.new("TextBox")
-    box.Parent = ScrollFrame
-    box.Position = UDim2.new(0, 10, 0, y)
-    box.Size = UDim2.new(0, 175, 0, 24)
-    box.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
-    box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    box.PlaceholderText = default
-    box.Text = default
-    box.Font = Enum.Font.GothamSemibold
-    box.TextSize = 11
-    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 5)
-    Instance.new("UIStroke", box).Color = Color3.fromRGB(45, 45, 55)
-    
-    box.FocusLost:Connect(function()
-        local val = tonumber(box.Text)
-        if val then 
-            if val > 60 then val = 60 box.Text = "60" end
-            Config[configKey] = val 
-        end
-    end)
-    return box
-end
+-- DIRECTION SELECTION INSIDE THE PANEL
+createUIElementLabel("Set Autoplay Direction", 10)
 
--- RENDERING MICRO ELEMENTS
-createUIElementLabel("Speed Control", 8)
-createTextBoxInput("16", 24, "NormalSpeed")
+local InsideSideBtn = Instance.new("TextButton", ScrollFrame)
+InsideSideBtn.Size = UDim2.new(0, 175, 0, 26)
+InsideSideBtn.Position = UDim2.new(0, 10, 0, 26)
+InsideSideBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+InsideSideBtn.Text = "DEFAULT SIDE: RIGHT"
+InsideSideBtn.Font = Enum.Font.GothamBold
+InsideSideBtn.TextColor3 = Color3.fromRGB(170, 85, 255)
+InsideSideBtn.TextSize = 10
+Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
+Instance.new("UIStroke", InsideSideBtn).Color = Color3.fromRGB(45, 45, 55)
 
-createUIElementLabel("Before Grab Speed (Max 60)", 54)
-createTextBoxInput("50.5", 70, "BeforeGrabSpeed")
-
-createUIElementLabel("After Grab Speed (Max 60)", 100)
-createTextBoxInput("58", 116, "AfterGrabSpeed")
-
-createUIElementLabel("Autoplay Side Select", 146)
-
-local BtnLeft = Instance.new("TextButton", ScrollFrame)
-BtnLeft.Size = UDim2.new(0, 82, 0, 24)
-BtnLeft.Position = UDim2.new(0, 10, 0, 162)
-BtnLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
-BtnLeft.Text = "LEFT"
-BtnLeft.Font = Enum.Font.GothamBold
-BtnLeft.TextColor3 = Color3.fromRGB(255, 255, 255)
-BtnLeft.TextSize = 11
-Instance.new("UICorner", BtnLeft).CornerRadius = UDim.new(0, 5)
-
-local BtnRight = BtnLeft:Clone()
-BtnRight.Parent = ScrollFrame
-BtnRight.Position = UDim2.new(0, 103, 0, 162)
-BtnRight.Text = "RIGHT"
-
-local function resetAutoplayButtons()
-    BtnLeft.Text = "LEFT"
-    BtnLeft.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
-    BtnRight.Text = "RIGHT"
-    BtnRight.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
-end
-
-BtnLeft.MouseButton1Click:Connect(function()
-    if Config.SideSelection == "Left" then
-        Config.SideSelection = "None"
-        resetAutoplayButtons()
+local function refreshOutsideAutoplayVisuals()
+    if Config.AutoplayActive then
+        MiniPlay.Text = "X (STOP)"
+        MiniPlay.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
     else
-        Config.SideSelection = "Left"
-        resetAutoplayButtons()
-        BtnLeft.Text = "X (STOP)"
-        BtnLeft.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+        MiniPlay.Text = Config.CurrentDirection:upper()
+        MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+    end
+end
+
+InsideSideBtn.MouseButton1Click:Connect(function()
+    if Config.CurrentDirection == "Right" then
+        Config.CurrentDirection = "Left"
+        InsideSideBtn.Text = "DEFAULT SIDE: LEFT"
+    else
+        Config.CurrentDirection = "Right"
+        InsideSideBtn.Text = "DEFAULT SIDE: RIGHT"
+    end
+    refreshOutsideAutoplayVisuals()
+end)
+
+-- OUTSIDE CLICK LOGIC FOR AUTOPLAY
+MiniPlay.MouseButton1Click:Connect(function()
+    Config.AutoplayActive = not Config.AutoplayActive
+    refreshOutsideAutoplayVisuals()
+end)
+
+-- OUTSIDE CLICK LOGIC FOR AUTO BAT CHASE
+MiniBat.MouseButton1Click:Connect(function()
+    Config.AutoBat = not Config.AutoBat
+    if Config.AutoBat then
+        MiniBat.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+    else
+        MiniBat.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
     end
 end)
 
-BtnRight.MouseButton1Click:Connect(function()
-    if Config.SideSelection == "Right" then
-        Config.SideSelection = "None"
-        resetAutoplayButtons()
-    else
-        Config.SideSelection = "Right"
-        resetAutoplayButtons()
-        BtnRight.Text = "X (STOP)"
-        BtnRight.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
-    end
-end)
-
-createUIElementLabel("Features Toggle", 194)
+createUIElementLabel("Features Toggle", 62)
 
 local function createMainPanelToggle(name, y, configKey, callback)
     local frameBtn = Instance.new("TextButton", ScrollFrame)
@@ -283,12 +255,10 @@ local function createMainPanelToggle(name, y, configKey, callback)
     end)
 end
 
-createMainPanelToggle("Auto Loop Steal", 212, "AutoLoopSteal")
-createMainPanelToggle("Auto Bat + AimLock", 242, "AutoBat")
-createMainPanelToggle("Infinite Jump", 272, "InfiniteJump")
+createMainPanelToggle("Auto Loop Steal", 80, "AutoLoopSteal")
+createMainPanelToggle("Infinite Jump", 110, "InfiniteJump")
 
--- NIGHT VISION / X-RAY BASE
-createMainPanelToggle("NightVision / X-Ray", 302, "NightVision", function(state)
+createMainPanelToggle("NightVision / X-Ray", 140, "NightVision", function(state)
     if state then
         Lighting.Ambient = Color3.fromRGB(255, 255, 255)
         Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
@@ -315,73 +285,82 @@ createMainPanelToggle("NightVision / X-Ray", 302, "NightVision", function(state)
     end
 end)
 
--- [[ MOVEMENT & PHYSICAL ENGINE ]] --
+-- [[ PHYSICAL MOVEMENT ENGINE (STABILIZED AT 38 SPEED) ]] --
 local NetworkMoveVelocity = Instance.new("BodyVelocity")
 NetworkMoveVelocity.MaxForce = Vector3.new(250000, 0, 250000)
 NetworkMoveVelocity.Velocity = Vector3.new(0, 0, 0)
 
 RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
-        if Config.AutoLoopSteal then
-            autoGrabLogic()
-        end
+        if Config.AutoLoopSteal then autoGrabLogic() end
 
-        local selectedRawVelocity = Config.NormalSpeed
-        if Config.AutoLoopSteal then
-            if checkBrainrot() then selectedRawVelocity = Config.AfterGrabSpeed else selectedRawVelocity = Config.BeforeGrabSpeed end
-        end
-        if selectedRawVelocity > 60 then selectedRawVelocity = 60 end
+        -- Constant Safe 38 Speed execution
+        local movingSpeed = 38 
 
-        if Humanoid.MoveDirection.Magnitude > 0 and Config.SideSelection == "None" then
-            if NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
-            local microStepOffset = Humanoid.MoveDirection * (selectedRawVelocity - 16) * 0.0142
-            RootPart.CFrame = RootPart.CFrame + microStepOffset
-        end
-
-        if Config.SideSelection ~= "None" then
+        -- Autoplay translation mapping
+        if Config.AutoplayActive and not Config.AutoBat then
             if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
             Humanoid.PlatformStand = false
-            local vectorPushDirection = Vector3.new(0,0,0)
-            if Config.SideSelection == "Left" then
-                vectorPushDirection = RootPart.CFrame.RightVector * -selectedRawVelocity
-            elseif Config.SideSelection == "Right" then
-                vectorPushDirection = RootPart.CFrame.RightVector * selectedRawVelocity
+            
+            local directionVector = Vector3.new(0, 0, 0)
+            if Config.CurrentDirection == "Left" then
+                directionVector = RootPart.CFrame.RightVector * -movingSpeed
+            elseif Config.CurrentDirection == "Right" then
+                directionVector = RootPart.CFrame.RightVector * movingSpeed
             end
-            NetworkMoveVelocity.Velocity = Vector3.new(vectorPushDirection.X, RootPart.Velocity.Y, vectorPushDirection.Z)
+            NetworkMoveVelocity.Velocity = Vector3.new(directionVector.X, RootPart.Velocity.Y, directionVector.Z)
         else
-            if NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
+            if not Config.AutoBat and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
         end
     else
         if NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
     end
 end)
 
--- Auto Weapon Weapon Loop
+-- [[ AGGRESSIVE ENEMY CHASE & BAT CONTROLLER ]] --
 task.spawn(function()
     while true do
-        if Config.AutoBat and checkBrainrot() and RootPart then
-            local trackingCap = nil
-            local rangeDist = 24
-            for _, pl in pairs(Players:GetPlayers()) do
-                if pl ~= LocalPlayer and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetRoot = pl.Character.HumanoidRootPart
-                    local currentRange = (RootPart.Position - targetRoot.Position).Magnitude
-                    if currentRange < rangeDist then rangeDist = currentRange trackingCap = targetRoot end
+        if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
+            local targetEnemy = nil
+            local shortestDistance = math.huge
+
+            -- Scan nearest opponent on the map
+            for _, player in pairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
+                    local dist = (RootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                    if dist < shortestDistance then
+                        shortestDistance = dist
+                        targetEnemy = player.Character.HumanoidRootPart
+                    end
                 end
             end
-            if trackingCap then
-                RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(trackingCap.Position.X, RootPart.Position.Y, trackingCap.Position.Z))
+
+            if targetEnemy then
+                -- Look at opponent
+                RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
+                
+                -- High-speed 38 drift towards target
+                if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
+                local velocityVector = (targetEnemy.Position - RootPart.Position).Unit * 38
+                NetworkMoveVelocity.Velocity = Vector3.new(velocityVector.X, RootPart.Velocity.Y, velocityVector.Z)
+
+                -- Pull weapon tool & activate swing loop automatically 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
                     pcall(function() weaponTool:Activate() end)
                 end
+            else
+                if not Config.AutoplayActive and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
             end
+        else
+            if not Config.AutoplayActive and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
         end
-        task.wait(0.03)
+        task.wait(0.02)
     end
 end)
 
+-- Infinite Jump Mechanics
 local lastJumpAction = 0
 UIS.JumpRequest:Connect(function()
     if Config.InfiniteJump and RootPart and (tick() - lastJumpAction) > 0.15 then
@@ -390,4 +369,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub Duel Script V15.2 Deployed!")
+print("Lunar Hub | Undetected Deployed Seamlessly!")
