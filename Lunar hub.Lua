@@ -1,6 +1,7 @@
--- Lunar Hub (GUI + Anti-Cheat Bypass Infinite Jump)
+-- Lunar Hub (GUI + Force Speed Loop + Working AutoPlay)
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 pcall(function()
     game:GetService("CoreGui"):FindFirstChild("LunarHub"):Destroy()
@@ -45,9 +46,12 @@ local Config = {
     InfiniteJump = false
 }
 
+-- Function to check if character has the brainrot item
 local function checkBrainrot()
     if Character then
-        return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot")
+        -- Game ke tools check karne ke liye lowercase aur normal dono handle kiya hai
+        return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot") or 
+               Character:FindFirstChild("brainrot") or LocalPlayer.Backpack:FindFirstChild("brainrot")
     end
     return false
 end
@@ -79,13 +83,11 @@ local function createBox(default, y, configKey)
     box.TextSize = 14
     Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
     
+    -- Real-time save jab user likhna band karega
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then
             Config[configKey] = val
-            if configKey == "Speed" and Humanoid then
-                Humanoid.WalkSpeed = val
-            end
         end
     end)
     return box
@@ -129,6 +131,7 @@ Mini.MouseButton1Click:Connect(function()
     Mini.Visible = false
 end)
 
+-- Inputs Creation
 createLabel("Speed", 70)
 createBox("32", 70, "Speed")
 
@@ -148,131 +151,4 @@ Left.BackgroundColor3 = Color3.fromRGB(170,85,255)
 Left.TextColor3 = Color3.new(1,1,1)
 Left.Font = Enum.Font.GothamBold
 Left.Text = "Left"
-Instance.new("UICorner", Left).CornerRadius = UDim.new(0,8)
-
-local Right = Left:Clone()
-Right.Parent = Frame
-Right.Position = UDim2.new(0,150,0,245)
-Right.BackgroundColor3 = Color3.fromRGB(30,30,40)
-Right.Text = "Right"
-
-Left.MouseButton1Click:Connect(function()
-    Config.Side = "Left"
-    Left.BackgroundColor3 = Color3.fromRGB(170,85,255)
-    Right.BackgroundColor3 = Color3.fromRGB(30,30,40)
-end)
-
-Right.MouseButton1Click:Connect(function()
-    Config.Side = "Right"
-    Right.BackgroundColor3 = Color3.fromRGB(170,85,255)
-    Left.BackgroundColor3 = Color3.fromRGB(30,30,40)
-end)
-
-createLabel("Mode", 295)
-
-local Mode = Instance.new("TextButton")
-Mode.Parent = Frame
-Mode.Position = UDim2.new(0,150,0,295)
-Mode.Size = UDim2.new(0,110,0,35)
-Mode.BackgroundColor3 = Color3.fromRGB(30,30,40)
-Mode.TextColor3 = Color3.new(1,1,1)
-Mode.Font = Enum.Font.GothamBold
-Mode.Text = "AutoPlay"
-Instance.new("UICorner", Mode).CornerRadius = UDim.new(0,8)
-
-Mode.MouseButton1Click:Connect(function()
-    if Config.Mode == "AutoPlay" then
-        Config.Mode = "Manual"
-        Mode.Text = "Manual"
-    else
-        Config.Mode = "AutoPlay"
-        Mode.Text = "AutoPlay"
-    end
-end)
-
-local function createToggle(name, y, configKey)
-    createLabel(name, y)
-
-    local btn = Instance.new("TextButton")
-    btn.Parent = Frame
-    btn.Position = UDim2.new(0,150,0,y)
-    btn.Size = UDim2.new(0,110,0,35)
-    btn.BackgroundColor3 = Color3.fromRGB(200,50,50)
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamBold
-    btn.Text = "OFF"
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
-
-    btn.MouseButton1Click:Connect(function()
-        if btn.Text == "OFF" then
-            btn.Text = "ON"
-            btn.BackgroundColor3 = Color3.fromRGB(50,200,50)
-            Config[configKey] = true
-        else
-            btn.Text = "OFF"
-            btn.BackgroundColor3 = Color3.fromRGB(200,50,50)
-            Config[configKey] = false
-        end
-    end)
-end
-
-createToggle("Auto Loop Steal", 345, "AutoLoopSteal")
-createToggle("Auto Bat", 390, "AutoBat")
-createToggle("Infinite Jump", 435, "InfiniteJump")
-
--- [[ FUNCTIONAL LOOPS ]] --
-
-task.spawn(function()
-    while true do
-        if Config.AutoLoopSteal and Humanoid and RootPart then
-            if checkBrainrot() then
-                Humanoid.WalkSpeed = Config.AfterGrab
-            else
-                Humanoid.WalkSpeed = Config.BeforeGrab
-            end
-            
-            if Config.Mode == "AutoPlay" then
-                if Config.Side == "Left" then
-                    RootPart.CFrame = RootPart.CFrame * CFrame.new(-0.4, 0, 0)
-                elseif Config.Side == "Right" then
-                    RootPart.CFrame = RootPart.CFrame * CFrame.new(0.4, 0, 0)
-                end
-            end
-        end
-        task.wait(0.03)
-    end
-end)
-
-task.spawn(function()
-    while true do
-        if Config.AutoBat and checkBrainrot() and RootPart then
-            for _, p in pairs(Players:GetPlayers()) do
-                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-                    local targetRoot = p.Character.HumanoidRootPart
-                    local distance = (RootPart.Position - targetRoot.Position).Magnitude
-                    
-                    if distance < 16 then
-                        local Tool = Character:FindFirstChildOfClass("Tool")
-                        if Tool then 
-                            Tool:Activate() 
-                        end
-                    end
-                end
-            end
-        end
-        task.wait(0.1)
-    end
-end)
-
--- [[ BYPASS INFINITE JUMP LOGIC ]] --
-local lastJump = 0
-UIS.JumpRequest:Connect(function()
-    -- Config.InfiniteJump ON hona chaiye, aur 0.08 seconds ka micro-delay taaki anti-cheat reset na kare
-    if Config.InfiniteJump and RootPart and (tick() - lastJump) > 0.08 then
-        lastJump = tick()
-        -- Velocity change karne ki jagah character ko CFrame se hawa me 5 studs upar boost karenge
-        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 5, 0)
-    end
-end)
-
-print("Lunar Hub UI & Anti-Cheat Bypass Infinite Jump Loaded!")
+Instance.new("UICorner", Left).CornerRadius = U
