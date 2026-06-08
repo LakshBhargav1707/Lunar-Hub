@@ -1,145 +1,185 @@
--- Lunar Hub (GUI Only)
--- This is a UI template. Toggle states and textboxes work in the interface,
--- but no game automation/exploit actions are connected.
+-- [[ LakshByte - Custom Brainrot Steal Hub UI Wrapper ]] --
 
-local UIS = game:GetService("UserInputService")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
 
-pcall(function()
-    game:GetService("CoreGui"):FindFirstChild("LunarHub"):Destroy()
+local Window = Library:CreateWindow({
+   Name = "Lunar Hub | Brainrot Edition",
+   LoadingTitle = "Loading System...",
+   LoadingSubtitle = "by LakshByte",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = "LunarHubConfig",
+      FileName = "BrainrotConfig"
+   }
+})
+
+local MainTab = Window:CreateTab("Main Cheats", 4483362458) -- Title tab
+
+-- [[ VARIABLES FOR LOGIC ]] --
+local Humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+local RootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+
+local Config = {
+    NormalSpeed = 32,
+    BeforeGrabSpeed = 30,
+    AfterGrabSpeed = 30,
+    SideSelection = "Left", -- Default Side
+    PlayMode = "Autoplay", -- Default Mode
+    AutoLoopSteal = false,
+    AutoBat = false,
+    InfiniteJump = false
+}
+
+-- [[ 1. SPEED SECTION ]] --
+MainTab:CreateSection("Speed Modifiers")
+
+MainTab:CreateInput({
+   Name = "WalkSpeed (Type Number)",
+   PlaceholderText = "Default: 32",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      local speed = tonumber(Text)
+      if speed then
+          Config.NormalSpeed = speed
+          Humanoid.WalkSpeed = speed
+      end
+   end,
+})
+
+MainTab:CreateInput({
+   Name = "Before Grab Speed",
+   PlaceholderText = "Default: 30",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      local speed = tonumber(Text)
+      if speed then Config.BeforeGrabSpeed = speed end
+   end,
+})
+
+MainTab:CreateInput({
+   Name = "After Grab Speed",
+   PlaceholderText = "Default: 30",
+   RemoveTextAfterFocusLost = false,
+   Callback = function(Text)
+      local speed = tonumber(Text)
+      if speed then Config.AfterGrabSpeed = speed end
+   end,
+})
+
+-- [[ 2. SIDE SELECTION & MODE ]] --
+MainTab:CreateSection("Side Selection & Mode")
+
+-- Dynamic Side Selection Button
+local SideBtn
+SideBtn = MainTab:CreateButton({
+   Name = "Side Selection: LEFT",
+   Callback = function()
+      if Config.SideSelection == "Left" then
+          Config.SideSelection = "Right"
+          SideBtn:Set("Side Selection: RIGHT")
+      else
+          Config.SideSelection = "Left"
+          SideBtn:Set("Side Selection: LEFT")
+      end
+   end,
+})
+
+-- Mode Toggle Button (Autoplay / Manual)
+local ModeBtn
+ModeBtn = MainTab:CreateButton({
+   Name = "Mode: Autoplay",
+   Callback = function()
+      if Config.PlayMode == "Autoplay" then
+          Config.PlayMode = "Manual"
+          ModeBtn:Set("Mode: Manual")
+      else
+          Config.PlayMode = "Autoplay"
+          ModeBtn:Set("Mode: Autoplay")
+      end
+   end,
+})
+
+-- [[ 3. AUTOMATION LOOPS ]] --
+MainTab:CreateSection("Automation")
+
+MainTab:CreateToggle({
+   Name = "Auto Loop Steal",
+   CurrentValue = false,
+   Flag = "AutoSteal",
+   Callback = function(Value)
+      Config.AutoLoopSteal = Value
+      
+      -- Auto Loop Logic
+      task.spawn(function()
+          while Config.AutoLoopSteal do
+              -- Speed update checking based on grabbing
+              local hasBrainrot = game.Players.LocalPlayer.Character:FindFirstChild("Brainrot") -- Check tool name in game
+              if hasBrainrot then
+                  Humanoid.WalkSpeed = Config.AfterGrabSpeed
+              else
+                  Humanoid.WalkSpeed = Config.BeforeGrabSpeed
+              end
+              
+              -- Teleportation/Movement based on Side Selection Panel
+              if Config.PlayMode == "Autoplay" then
+                  if Config.SideSelection == "Left" then
+                      -- Tumhare game ka left corner position vector yahan aayega
+                      -- RootPart.CFrame = CFrame.new(Left_X_Coord, Left_Y_Coord, Left_Z_Coord)
+                  elseif Config.SideSelection == "Right" then
+                      -- Tumhare game ka right corner position vector yahan aayega
+                      -- RootPart.CFrame = CFrame.new(Right_X_Coord, Right_Y_Coord, Right_Z_Coord)
+                  end
+              end
+              task.wait(0.1)
+          end
+      end)
+   end,
+})
+
+MainTab:CreateToggle({
+   Name = "Auto Bat (Hit Players)",
+   CurrentValue = false,
+   Flag = "AutoBat",
+   Callback = function(Value)
+      Config.AutoBat = Value
+      
+      task.spawn(function()
+          while Config.AutoBat do
+              local hasBrainrot = game.Players.LocalPlayer.Character:FindFirstChild("Brainrot")
+              if hasBrainrot then
+                  -- Find Nearest Player
+                  for _, player in pairs(game.Players:GetPlayers()) do
+                      if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                          local targetDist = (RootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
+                          if targetDist < 15 then -- Range to hit
+                              -- Trigger your game's Bat Hit Remote or Tool Activation
+                              local Bat = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
+                              if Bat then Bat:Activate() end
+                          end
+                      end
+                  end
+              end
+              task.wait(0.2)
+          end
+      end)
+   end,
+})
+
+-- [[ 4. INFINITE JUMP ]] --
+MainTab:CreateSection("Movement Exploits")
+
+MainTab:CreateToggle({
+   Name = "Infinite Jump",
+   CurrentValue = false,
+   Flag = "InfJump",
+   Callback = function(Value)
+      Config.InfiniteJump = Value
+   end,
+})
+
+-- Services Connection for Infinite Jump
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if Config.InfiniteJump then
+        Humanoid:ChangeState("Jumping")
+    end
 end)
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "LunarHub"
-ScreenGui.Parent = game:GetService("CoreGui")
-ScreenGui.ResetOnSpawn = false
-
-local Frame = Instance.new("Frame")
-Frame.Parent = ScreenGui
-Frame.Size = UDim2.new(0, 280, 0, 500)
-Frame.Position = UDim2.new(0.5, -140, 0.5, -250)
-Frame.BackgroundColor3 = Color3.fromRGB(18,18,24)
-Frame.BorderSizePixel = 0
-Frame.Active = true
-
-Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,12)
-
-local function createLabel(text, y)
-    local lbl = Instance.new("TextLabel")
-    lbl.Parent = Frame
-    lbl.Position = UDim2.new(0,15,0,y)
-    lbl.Size = UDim2.new(0,120,0,30)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text
-    lbl.TextColor3 = Color3.new(1,1,1)
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextSize = 16
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    return lbl
-end
-
-local function createBox(default, y)
-    local box = Instance.new("TextBox")
-    box.Parent = Frame
-    box.Position = UDim2.new(0,150,0,y)
-    box.Size = UDim2.new(0,110,0,30)
-    box.BackgroundColor3 = Color3.fromRGB(30,30,40)
-    box.TextColor3 = Color3.new(1,1,1)
-    box.PlaceholderText = default
-    box.Text = default
-    box.Font = Enum.Font.Gotham
-    box.TextSize = 14
-    Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
-    return box
-end
-
-local Title = createLabel("Lunar Hub", 10)
-Title.TextColor3 = Color3.fromRGB(170,85,255)
-Title.TextStrokeTransparency = 0
-Title.TextStrokeColor3 = Color3.new(0,0,0)
-Title.TextSize = 24
-
-local Minimize = Instance.new("TextButton")
-Minimize.Parent = Frame
-Minimize.Position = UDim2.new(1,-40,0,10)
-Minimize.Size = UDim2.new(0,30,0,30)
-Minimize.BackgroundTransparency = 1
-Minimize.Text = "-"
-Minimize.TextColor3 = Color3.new(1,1,1)
-Minimize.Font = Enum.Font.GothamBold
-Minimize.TextSize = 28
-
-local Mini = Instance.new("TextButton")
-Mini.Parent = ScreenGui
-Mini.Size = UDim2.new(0,100,0,35)
-Mini.Position = UDim2.new(0,20,0.5,0)
-Mini.Visible = false
-Mini.BackgroundColor3 = Color3.fromRGB(18,18,24)
-Mini.Text = "Lunar Hub"
-Mini.TextColor3 = Color3.new(1,1,1)
-Mini.Font = Enum.Font.GothamBold
-Mini.TextSize = 16
-Instance.new("UICorner", Mini).CornerRadius = UDim.new(0,10)
-
-Minimize.MouseButton1Click:Connect(function()
-    Frame.Visible = false
-    Mini.Visible = true
-end)
-
-Mini.MouseButton1Click:Connect(function()
-    Frame.Visible = true
-    Mini.Visible = false
-end)
-
-createLabel("Speed", 70)
-createBox("32", 70)
-
-createLabel("Before Grab", 115)
-createBox("30", 115)
-
-createLabel("After Grab", 160)
-createBox("30", 160)
-
-createLabel("Side Selection", 210)
-
-local Left = Instance.new("TextButton")
-Left.Parent = Frame
-Left.Position = UDim2.new(0,15,0,245)
-Left.Size = UDim2.new(0,110,0,35)
-Left.Text = "Left"
-
-local Right = Left:Clone()
-Right.Parent = Frame
-Right.Position = UDim2.new(0,150,0,245)
-Right.Text = "Right"
-
-createLabel("Mode", 295)
-
-local Mode = Instance.new("TextButton")
-Mode.Parent = Frame
-Mode.Position = UDim2.new(0,150,0,295)
-Mode.Size = UDim2.new(0,110,0,35)
-Mode.Text = "AutoPlay"
-
-Mode.MouseButton1Click:Connect(function()
-    Mode.Text = Mode.Text == "AutoPlay" and "Manual" or "AutoPlay"
-end)
-
-local function createToggle(name, y)
-    createLabel(name, y)
-
-    local btn = Instance.new("TextButton")
-    btn.Parent = Frame
-    btn.Position = UDim2.new(0,150,0,y)
-    btn.Size = UDim2.new(0,110,0,35)
-    btn.Text = "OFF"
-
-    btn.MouseButton1Click:Connect(function()
-        btn.Text = btn.Text == "OFF" and "ON" or "OFF"
-    end)
-end
-
-createToggle("Auto Loop Steal", 345)
-createToggle("Auto Bat", 390)
-createToggle("Infinite Jump", 435)
-
-print("Lunar Hub UI Loaded")
