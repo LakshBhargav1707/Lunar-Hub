@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - V16.5 Safe Anti-Kick Override ]] --
+-- [[ Lunar Hub | Undetected - V16.7 Solid Button Fix ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,7 +13,7 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Clean Up Old Interface
+-- Clean Up Old Interface Fully
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
@@ -32,8 +32,8 @@ end)
 
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 34, -- Safe calibrated speed to stop anti-cheat kicks
-    AfterGrabSpeed = 35,  -- Safe sweet spot for auto-play sweeps
+    BeforeGrabSpeed = 34, 
+    AfterGrabSpeed = 35,  
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
@@ -51,7 +51,7 @@ local function checkBrainrot()
     return false
 end
 
--- Forced Snatcher (Micro-Touch Network Injection)
+-- Forced Snatcher Logic
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
@@ -86,31 +86,33 @@ local function autoGrabLogic()
     end
 end
 
--- [[ OUTSIDE THE PANEL - TINY MOBILE CONTROLS ]] --
+-- [[ OUTSIDE THE PANEL - TINY MOBILE CONTROLS (FIXED TOUCH) ]] --
 local MobileGui = Instance.new("ScreenGui")
 MobileGui.Name = "LunarMobileUI"
 MobileGui.Parent = TargetGuiParent
 MobileGui.ResetOnSpawn = false
+MobileGui.DisplayOrder = 99999 -- Forced on top layer of screen
 
 local Layout = Instance.new("Frame", MobileGui)
-Layout.Size = UDim2.new(0, 160, 0, 35)
-Layout.Position = UDim2.new(0, 15, 0, 120)
+Layout.Size = UDim2.new(0, 180, 0, 40)
+Layout.Position = UDim2.new(0, 15, 0, 140)
 Layout.BackgroundTransparency = 1
 
 local UIList = Instance.new("UIListLayout", Layout)
 UIList.FillDirection = Enum.FillDirection.Horizontal
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
-UIList.Padding = UDim.new(0, 6)
+UIList.Padding = UDim.new(0, 8)
 
 local function createMiniControlBtn(text, order)
     local btn = Instance.new("TextButton", Layout)
-    btn.Size = UDim2.new(0, 48, 0, 28)
+    btn.Size = UDim2.new(0, 52, 0, 32)
     btn.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
     btn.Font = Enum.Font.GothamBold
     btn.Text = text
     btn.TextSize = 11
     btn.LayoutOrder = order
+    btn.Active = true -- Enabled active interaction layer
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", btn).Color = Color3.fromRGB(50, 50, 60)
     return btn
@@ -121,11 +123,12 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ INTERIOR CONFIGURATION PANEL ]] --
+-- [[ INTERIOR CONFIGURATION PANEL (FIXED HIERARCHY) ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
 MainGui.ResetOnSpawn = false
+MainGui.DisplayOrder = 99998
 
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
@@ -168,7 +171,10 @@ local UIPadding = Instance.new("UIPadding", ScrollFrame)
 UIPadding.PaddingLeft = UDim.new(0, 10)
 UIPadding.PaddingTop = UDim.new(0, 8)
 
-MiniToggle.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
+-- FIXED TOGGLE PANELS TRIGGER VIA ACTIVATED
+MiniToggle.Activated:Connect(function() 
+    MainFrame.Visible = not MainFrame.Visible 
+end)
 
 local function createUIElementLabel(text, order)
     local lbl = Instance.new("TextLabel", ScrollFrame)
@@ -199,14 +205,14 @@ local function createTextBoxInput(default, configKey, order)
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 55 then val = 55 box.Text = "55" end -- Safety cap limit to prevent severe anti-cheat tracking
+            if val > 55 then val = 55 box.Text = "55" end 
             Config[configKey] = val 
         end
     end)
     return box
 end
 
--- RENDER ALL INPUT FIELDS SEAMLESSLY
+-- RENDER ALL SPEED FIELDS
 createUIElementLabel("Speed Control", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
 
@@ -226,9 +232,10 @@ InsideSideBtn.Font = Enum.Font.GothamBold
 InsideSideBtn.TextColor3 = Color3.fromRGB(170, 85, 255)
 InsideSideBtn.TextSize = 10
 InsideSideBtn.LayoutOrder = 8
+InsideSideBtn.Active = true
 Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
-InsideSideBtn.UIStroke = Instance.new("UIStroke", InsideSideBtn)
-InsideSideBtn.UIStroke.Color = Color3.fromRGB(45, 45, 55)
+local insideStroke = Instance.new("UIStroke", InsideSideBtn)
+insideStroke.Color = Color3.fromRGB(45, 45, 55)
 
 local function refreshOutsideAutoplayVisuals()
     if Config.AutoplayActive then
@@ -240,7 +247,8 @@ local function refreshOutsideAutoplayVisuals()
     end
 end
 
-InsideSideBtn.MouseButton1Click:Connect(function()
+-- ACTIVATED TRIGGERS INSTEAD OF CLICK EVENTS
+InsideSideBtn.Activated:Connect(function()
     if Config.CurrentDirection == "Right" then
         Config.CurrentDirection = "Left"
         InsideSideBtn.Text = "DEFAULT SIDE: LEFT"
@@ -251,12 +259,12 @@ InsideSideBtn.MouseButton1Click:Connect(function()
     refreshOutsideAutoplayVisuals()
 end)
 
-MiniPlay.MouseButton1Click:Connect(function()
+MiniPlay.Activated:Connect(function()
     Config.AutoplayActive = not Config.AutoplayActive
     refreshOutsideAutoplayVisuals()
 end)
 
-MiniBat.MouseButton1Click:Connect(function()
+MiniBat.Activated:Connect(function()
     Config.AutoBat = not Config.AutoBat
     if Config.AutoBat then
         MiniBat.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
@@ -277,10 +285,11 @@ local function createMainPanelToggle(name, configKey, order, callback)
     frameBtn.TextXAlignment = Enum.TextXAlignment.Left
     frameBtn.TextSize = 10
     frameBtn.LayoutOrder = order
+    frameBtn.Active = true
     Instance.new("UICorner", frameBtn).CornerRadius = UDim.new(0, 5)
     Instance.new("UIStroke", frameBtn).Color = Color3.fromRGB(45, 45, 55)
 
-    frameBtn.MouseButton1Click:Connect(function()
+    frameBtn.Activated:Connect(function()
         Config[configKey] = not Config[configKey]
         if Config[configKey] then
             frameBtn.Text = " " .. name .. ": ON"
@@ -324,18 +333,16 @@ createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     end
 end)
 
--- [[ BYPASS FRAMERATE MOVEMENT ENGINE (NO BODYVELOCITY KICK) ]] --
+-- [[ BYPASS MOVEMENT SYSTEM ]] --
 RunService.Heartbeat:Connect(function(deltaTime)
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        -- Fetch precise user speeds from configs
         local currentMovingSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
             if checkBrainrot() then currentMovingSpeed = Config.AfterGrabSpeed else currentMovingSpeed = Config.BeforeGrabSpeed end
         end
 
-        -- Direct CFrame Frame-Translation for Autoplay (Completely Uncatchable)
         if Config.AutoplayActive and not Config.AutoBat then
             local translationVector = Vector3.new(0, 0, 0)
             if Config.CurrentDirection == "Left" then
@@ -343,17 +350,15 @@ RunService.Heartbeat:Connect(function(deltaTime)
             elseif Config.CurrentDirection == "Right" then
                 translationVector = RootPart.CFrame.RightVector * currentMovingSpeed
             end
-            
-            -- Increment position directly using delta timing sequence safely
             RootPart.CFrame = RootPart.CFrame + Vector3.new(translationVector.X * deltaTime, 0, translationVector.Z * deltaTime)
         end
     end
 end)
 
--- [[ SAFE LERP CHASE ENGINE ]] --
+-- [[ LERP CHASE BAT CONTROLLER ]] --
 task.spawn(function()
     while true do
-        local deltaTime = task.wait(0.015) -- Controlled tracking update intervals
+        local deltaTime = task.wait(0.015)
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
             local targetEnemy = nil
             local shortestDistance = math.huge
@@ -369,17 +374,14 @@ task.spawn(function()
             end
 
             if targetEnemy then
-                -- Face enemy perfectly
                 RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
                 
                 local activeSpeed = Config.BeforeGrabSpeed
                 if checkBrainrot() then activeSpeed = Config.AfterGrabSpeed end
 
-                -- Advanced CFrame Step Slide Translation (No engine force flags sent to server)
                 local moveDir = (targetEnemy.Position - RootPart.Position).Unit
                 RootPart.CFrame = RootPart.CFrame + Vector3.new(moveDir.X * activeSpeed * deltaTime, 0, moveDir.Z * activeSpeed * deltaTime)
 
-                -- Automatically activate combat bat swing mechanics
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
@@ -399,4 +401,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub | V16.5 Safe Patch Deployed!")
+print("Lunar Hub | Perfect Native Touch Interface Applied!")
