@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected V1 - Complete Revul Layout Emulation ]] --
+-- [[ Lunar Hub | Undetected V1 — Full Functional Minimize/Maximize Edition ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -16,12 +16,12 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Complete wipeout of old minimal mobile decks
+-- Purge any old versions to prevent memory overlap
 pcall(function()
-    if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
-    if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
+    if TargetGuiParent:FindFirstChild("LunarHub_V1") then TargetGuiParent:FindFirstChild("LunarHub_V1"):Destroy() end
 end)
 
+-- [[ GLOBAL ENGINE CONFIG ]] --
 local Config = {
     NormalSpeed = 16,
     BeforeGrabSpeed = 32, 
@@ -41,6 +41,7 @@ local function checkBrainrot()
     return false
 end
 
+-- Server-Side Hitbox Steal Trigger
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
@@ -59,89 +60,96 @@ local function autoGrabLogic()
     end
 end
 
--- [[ REVUL DECK SIDE MINI-BAR TRIGGER ]] --
-local MobileGui = Instance.new("ScreenGui")
-MobileGui.Name = "LunarMobileUI"
-MobileGui.Parent = TargetGuiParent
-MobileGui.ResetOnSpawn = false
-
-local MiniLayout = Instance.new("Frame", MobileGui)
-MiniLayout.Size = UDim2.new(0, 140, 0, 40)
-MiniLayout.Position = UDim2.new(0, 15, 0, 145)
-MiniLayout.BackgroundTransparency = 1
-
-local MiniUIList = Instance.new("UIListLayout", MiniLayout)
-MiniUIList.FillDirection = Enum.FillDirection.Horizontal
-MiniUIList.SortOrder = Enum.SortOrder.LayoutOrder
-MiniUIList.Padding = UDim.new(0, 6)
-
-local function createMiniAccessBtn(text, order)
-    local btn = Instance.new("TextButton", MiniLayout)
-    btn.Size = UDim2.new(0, 42, 0, 28)
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-    btn.TextColor3 = Color3.fromRGB(240, 240, 250)
-    btn.Font = Enum.Font.GothamBold
-    btn.Text = text
-    btn.TextSize = 10
-    btn.LayoutOrder = order
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 5)
-    local stroke = Instance.new("UIStroke", btn)
-    stroke.Color = Color3.fromRGB(60, 60, 75)
-    return btn
-end
-
-local MiniToggle = createMiniAccessBtn("|||", 1)
-local MiniBat = createMiniAccessBtn("BAT", 2)
-local MiniSide = createMiniAccessBtn("RGT", 3)
-MiniSide.BackgroundColor3 = Color3.fromRGB(85, 70, 180)
-
--- [[ MAIN ADVANCED VERTICAL PANEL FRAME ]] --
+-- [[ MAIN SCREEN GUI CANVAS ]] --
 local MainGui = Instance.new("ScreenGui")
-MainGui.Name = "LunarHub"
+MainGui.Name = "LunarHub_V1"
 MainGui.Parent = TargetGuiParent
 MainGui.ResetOnSpawn = false
+MainGui.DisplayOrder = 99999
 
+-- [[ FLOATING MINIMIZED ICON BUTTON ]] --
+local MinimizedIcon = Instance.new("TextButton", MainGui)
+MinimizedIcon.Name = "MinimizedIcon"
+MinimizedIcon.Size = UDim2.new(0, 45, 0, 45)
+MinimizedIcon.Position = UDim2.new(0, 15, 0, 140) -- Perfect screen position
+MinimizedIcon.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+MinimizedIcon.Text = "🌙"
+MinimizedIcon.TextSize = 18
+MinimizedIcon.Font = Enum.Font.GothamBold
+MinimizedIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+MinimizedIcon.Visible = false -- Off initially since main frame is open
+MinimizedIcon.Active = true
+MinimizedIcon.Draggable = true
+Instance.new("UICorner", MinimizedIcon).CornerRadius = UDim.new(0, 12)
+local IconStroke = Instance.new("UIStroke", MinimizedIcon)
+IconStroke.Color = Color3.fromRGB(115, 90, 230)
+IconStroke.Width = 1.5
+
+-- [[ MAIN STRUCTURED VERTICAL PANEL FRAME ]] --
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 240, 0, 410) -- High structured canvas
+MainFrame.Size = UDim2.new(0, 240, 0, 410)
 MainFrame.Position = UDim2.new(0.5, -120, 0.5, -205)
 MainFrame.BackgroundColor3 = Color3.fromRGB(13, 13, 16)
 MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Draggable = true 
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 local FrameBorder = Instance.new("UIStroke", MainFrame)
-FrameBorder.Color = Color3.fromRGB(65, 65, 80)
-FrameBorder.Transparency = 0.3
+FrameBorder.Color = Color3.fromRGB(115, 90, 230)
+FrameBorder.Transparency = 0.2
 
--- Top Navigation Header Bar
+-- Header Navigation Bar
 local Header = Instance.new("Frame", MainFrame)
-Header.Size = UDim2.new(1, 0, 0, 36)
-Header.BackgroundColor3 = Color3.fromRGB(18, 18, 22)
+Header.Size = UDim2.new(1, 0, 0, 34)
+Header.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 8)
 
 local TitleText = Instance.new("TextLabel", Header)
-TitleText.Size = UDim2.new(1, 0, 1, 0)
+TitleText.Size = UDim2.new(1, -40, 1, 0)
+TitleText.Position = UDim2.new(0, 10, 0, 0)
 TitleText.BackgroundTransparency = 1
-TitleText.Text = "LUNAR HUB | UNDETECTED V1"
+TitleText.Text = "Lunar Hub | Undetected V1"
 TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
 TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 11
+TitleText.TextXAlignment = Enum.TextXAlignment.Left
 
+-- SMART MINIMIZE BUTTON (-)
+local MinimizeBtn = Instance.new("TextButton", Header)
+MinimizeBtn.Size = UDim2.new(0, 24, 0, 24)
+MinimizeBtn.Position = UDim2.new(1, -30, 0, 5)
+MinimizeBtn.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+MinimizeBtn.Text = "—"
+MinimizeBtn.TextColor3 = Color3.fromRGB(200, 200, 220)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.TextSize = 10
+Instance.new("UICorner", MinimizeBtn).CornerRadius = UDim.new(0, 6)
+
+-- Toggle Windows System Callbacks
+MinimizeBtn.Activated:Connect(function()
+    MainFrame.Visible = false
+    MinimizedIcon.Visible = true
+end)
+
+MinimizedIcon.Activated:Connect(function()
+    MinimizedIcon.Visible = false
+    MainFrame.Visible = true
+    MainFrame.Position = UDim2.new(0.5, -120, 0.5, -205) -- Reset center layout cleanly
+end)
+
+-- Scroll Deck Container
 local ContainerScroll = Instance.new("ScrollingFrame", MainFrame)
-ContainerScroll.Size = UDim2.new(1, -20, 1, -48)
-ContainerScroll.Position = UDim2.new(0, 10, 0, 42)
+ContainerScroll.Size = UDim2.new(1, -16, 1, -44)
+ContainerScroll.Position = UDim2.new(0, 8, 0, 38)
 ContainerScroll.BackgroundTransparency = 1
-ContainerScroll.CanvasSize = UDim2.new(0, 0, 0, 520)
+ContainerScroll.CanvasSize = UDim2.new(0, 0, 0, 480)
 ContainerScroll.ScrollBarThickness = 2
-ContainerScroll.ScrollBarImageColor3 = Color3.fromRGB(85, 70, 180)
+ContainerScroll.ScrollBarImageColor3 = Color3.fromRGB(115, 90, 230)
 
 local FlowLayout = Instance.new("UIListLayout", ContainerScroll)
 FlowLayout.SortOrder = Enum.SortOrder.LayoutOrder
 FlowLayout.Padding = UDim.new(0, 6)
 
-MiniToggle.Activated:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
-
--- UI Building Auxiliary Blocks
 local function appendSectionTitle(text, order)
     local block = Instance.new("TextLabel", ContainerScroll)
     block.Size = UDim2.new(1, 0, 0, 16)
@@ -204,23 +212,20 @@ local function appendFunctionalToggle(name, key, order)
             actionBtn.TextColor3 = Color3.fromRGB(240, 100, 100)
             actionBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
         end
-        if key == "AutoBat" then
-            MiniBat.BackgroundColor3 = Config.AutoBat and Color3.fromRGB(240, 100, 100) or Color3.fromRGB(20, 20, 25)
-        end
     end)
     return actionBtn
 end
 
--- Assemble Parameters exactly matching requested structures
+-- Assemble Options Setup (Revul Clone Layout)
 appendNumericalValueInput("Base Default WalkSpeed", "NormalSpeed", 16, 1)
 appendNumericalValueInput("Chasing Target Velocity (Before Grab)", "BeforeGrabSpeed", 32, 3)
 appendNumericalValueInput("Sweeping Velocity Load (After Grab)", "AfterGrabSpeed", 35, 5)
 
-appendSectionTitle("Side Selection & Modes", 7)
+appendSectionTitle("Autoplay Side Configuration", 7)
 local DirectionSelector = Instance.new("TextButton", ContainerScroll)
 DirectionSelector.Size = UDim2.new(1, 0, 0, 28)
 DirectionSelector.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-DirectionSelector.Text = "MODE SIDE DIRECTION: RIGHT"
+DirectionSelector.Text = "DEFAULT SIDE: RIGHT"
 DirectionSelector.TextColor3 = Color3.fromRGB(155, 130, 255)
 DirectionSelector.Font = Enum.Font.GothamBold
 DirectionSelector.TextSize = 10
@@ -229,67 +234,48 @@ Instance.new("UICorner", DirectionSelector).CornerRadius = UDim.new(0, 5)
 local dirStroke = Instance.new("UIStroke", DirectionSelector)
 dirStroke.Color = Color3.fromRGB(50, 50, 65)
 
-local function evaluateSideSync()
-    if Config.AutoplayActive then
-        MiniSide.Text = "STOP"
-        MiniSide.BackgroundColor3 = Color3.fromRGB(220, 80, 80)
-    else
-        MiniSide.Text = (Config.CurrentDirection == "Right") and "RGT" or "LFT"
-        MiniSide.BackgroundColor3 = Color3.fromRGB(85, 70, 180)
-    end
-end
-
 DirectionSelector.Activated:Connect(function()
     if Config.CurrentDirection == "Right" then
         Config.CurrentDirection = "Left"
-        DirectionSelector.Text = "MODE SIDE DIRECTION: LEFT"
+        DirectionSelector.Text = "DEFAULT SIDE: LEFT"
     else
         Config.CurrentDirection = "Right"
-        DirectionSelector.Text = "MODE SIDE DIRECTION: RIGHT"
+        DirectionSelector.Text = "DEFAULT SIDE: RIGHT"
     end
-    evaluateSideSync()
 end)
 
-MiniSide.Activated:Connect(function()
-    Config.AutoplayActive = not Config.AutoplayActive
-    evaluateSideSync()
-end)
+appendSectionTitle("Features Toggle Panel", 9)
+appendFunctionalToggle("Autoplay State Engine", "AutoplayActive", 10)
+appendFunctionalToggle("Auto Loop Steal", "AutoLoopSteal", 11)
+appendFunctionalToggle("Auto Engage Bat", "AutoBat", 12)
+appendFunctionalToggle("Infinite Jump", "InfiniteJump", 13)
 
-MiniBat.Activated:Connect(function()
-    Config.AutoBat = not Config.AutoBat
-    MiniBat.BackgroundColor3 = Config.AutoBat and Color3.fromRGB(240, 100, 100) or Color3.fromRGB(20, 20, 25)
-end)
-
-appendSectionTitle("Main Engine Utilities", 9)
-local ToggleSteal = appendFunctionalToggle("Auto Loop Steal", "AutoLoopSteal", 10)
-local ToggleJump = appendFunctionalToggle("Infinite Player Jump", "InfiniteJump", 11)
-
--- [[ DYNAMIC ANTI-CHEATING CONTROL SCHEDULER ]] --
-RunService.PreRender:Connect(function()
+-- [[ DYNAMIC POSITION TRANSLATION LOOP ]] --
+RunService.Heartbeat:Connect(function(deltaTime)
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        local adaptiveSpeedValue = Config.NormalSpeed
+        local targetWalkSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
-            adaptiveSpeedValue = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+            targetWalkSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
         end
 
         if Config.AutoplayActive and not Config.AutoBat then
-            Humanoid.WalkSpeed = adaptiveSpeedValue
-            local movementVector = (Config.CurrentDirection == "Right") and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
-            Humanoid:Move(movementVector, true)
-        else
-            if not Config.AutoBat then
-                Humanoid.WalkSpeed = Config.NormalSpeed
+            local velocityTranslation = Vector3.new(0, 0, 0)
+            if Config.CurrentDirection == "Left" then
+                velocityTranslation = RootPart.CFrame.RightVector * -targetWalkSpeed
+            elseif Config.CurrentDirection == "Right" then
+                velocityTranslation = RootPart.CFrame.RightVector * targetWalkSpeed
             end
+            RootPart.CFrame = RootPart.CFrame + Vector3.new(velocityTranslation.X * deltaTime, 0, velocityTranslation.Z * deltaTime)
         end
     end
 end)
 
--- [[ COMBAT INTERCEPT ENGINE ]] --
+-- [[ COMBAT CHASE SUBSYSTEM ]] --
 task.spawn(function()
     while true do
-        task.wait(0.015)
+        local deltaTime = task.wait(0.015)
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
             local targetEnemy = nil
             local shortestDistance = math.huge
@@ -305,21 +291,26 @@ task.spawn(function()
             end
 
             if targetEnemy then
-                local trackingAdjustment = Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z)
-                RootPart.CFrame = CFrame.lookAt(RootPart.Position, trackingAdjustment)
+                RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
                 
-                Humanoid.WalkSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
-                Humanoid:Move((targetEnemy.Position - RootPart.Position).Unit, false)
+                local activeSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+                local moveDir = (targetEnemy.Position - RootPart.Position).Unit
+                RootPart.CFrame = RootPart.CFrame + Vector3.new(moveDir.X * activeSpeed * deltaTime, 0, moveDir.Z * activeSpeed * deltaTime)
 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
                     pcall(function() weaponTool:Activate() end)
                 end
-            else
-                if not Config.AutoplayActive then Humanoid:Move(Vector3.new(0,0,0), false) end
             end
         end
+    end
+end)
+
+-- Infinite Jump Hook
+UIS.JumpRequest:Connect(function()
+    if Config.InfiniteJump and Humanoid and Humanoid.Health > 0 then
+        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
@@ -327,12 +318,6 @@ LocalPlayer.CharacterAdded:Connect(function(newChar)
     Character = newChar
     Humanoid = newChar:WaitForChild("Humanoid")
     RootPart = newChar:WaitForChild("HumanoidRootPart")
-end)
-
-UIS.JumpRequest:Connect(function()
-    if Config.InfiniteJump and Humanoid and Humanoid.Health > 0 then
-        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
 end)
 
 print("Lunar Hub | Undetected V1 Matrix Setup Loaded!")
