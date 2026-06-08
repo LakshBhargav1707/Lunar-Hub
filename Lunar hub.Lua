@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - Enhanced Performance & UI Fix ]] --
+-- [[ Lunar Hub | Undetected - Max Velocity Burst Override ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,7 +13,7 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Previous Layers Cleanup
+-- Layers Cleanup
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
@@ -32,8 +32,8 @@ end)
 
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 45, -- Speed boosted safely from 38 to 45
-    AfterGrabSpeed = 45,  -- Speed boosted safely from 38 to 45
+    BeforeGrabSpeed = 58, -- Base configuration pushed closer to max stealth limit
+    AfterGrabSpeed = 60,  -- Maximum physical threshold limit 
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
@@ -121,7 +121,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ FIXED INTERIOR MAIN PANEL WITH SEAMLESS SCROLLING ]] --
+-- [[ FIXED INTERIOR MAIN PANEL ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -156,7 +156,7 @@ ScrollFrame.Size = UDim2.new(1, 0, 1, -36)
 ScrollFrame.Position = UDim2.new(0, 0, 0, 34)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.ClipsDescendants = true
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 410) -- Expanded canvas so inputs never disappear
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 420)
 ScrollFrame.ScrollBarThickness = 3
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(115, 90, 230)
 
@@ -164,7 +164,6 @@ local UIListLayout = Instance.new("UIListLayout", ScrollFrame)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 5)
 
--- Padding object for clean alignment inside scroll
 local UIPadding = Instance.new("UIPadding", ScrollFrame)
 UIPadding.PaddingLeft = UDim.new(0, 10)
 UIPadding.PaddingTop = UDim.new(0, 8)
@@ -200,7 +199,7 @@ local function createTextBoxInput(default, configKey, order)
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 60 then val = 60 box.Text = "60" end -- Absolute safety ceiling
+            if val > 65 then val = 65 box.Text = "65" end -- Hard maximum hardware simulation limits
             Config[configKey] = val 
         end
     end)
@@ -211,11 +210,11 @@ end
 createUIElementLabel("Speed Control", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
 
-createUIElementLabel("Before Grab Speed (Max 60)", 3)
-createTextBoxInput("45", "BeforeGrabSpeed", 4)
+createUIElementLabel("Before Grab Speed (Max 65)", 3)
+createTextBoxInput("58", "BeforeGrabSpeed", 4)
 
-createUIElementLabel("After Grab Speed (Max 60)", 5)
-createTextBoxInput("45", "AfterGrabSpeed", 6)
+createUIElementLabel("After Grab Speed (Max 65)", 5)
+createTextBoxInput("60", "AfterGrabSpeed", 6)
 
 -- DIRECTION SELECTION INSIDE THE PANEL
 createUIElementLabel("Set Autoplay Direction", 7)
@@ -327,22 +326,22 @@ createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     end
 end)
 
--- [[ PHYSICAL MOVEMENT ENGINE (STABILIZED BYPASS) ]] --
+-- [[ HIGH-SPEED PHYSICS MOVEMENT OVERRIDE ENGINE ]] --
 local NetworkMoveVelocity = Instance.new("BodyVelocity")
-NetworkMoveVelocity.MaxForce = Vector3.new(250000, 0, 250000)
+NetworkMoveVelocity.MaxForce = Vector3.new(500000, 0, 500000) -- Doubled physical execution capacity
 NetworkMoveVelocity.Velocity = Vector3.new(0, 0, 0)
 
 RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        -- Dynamic calculation from textbox inputs
+        -- Fast dynamic translation calculations
         local movingSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
             if checkBrainrot() then movingSpeed = Config.AfterGrabSpeed else movingSpeed = Config.BeforeGrabSpeed end
         end
 
-        -- Autoplay translation mapping
+        -- Autoplay translation mapping (Zero Drag Override)
         if Config.AutoplayActive and not Config.AutoBat then
             if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
             Humanoid.PlatformStand = false
@@ -353,6 +352,8 @@ RunService.Heartbeat:Connect(function()
             elseif Config.CurrentDirection == "Right" then
                 directionVector = RootPart.CFrame.RightVector * movingSpeed
             end
+            
+            -- Pushing absolute velocity direct to physics matrix to beat linear resistance
             NetworkMoveVelocity.Velocity = Vector3.new(directionVector.X, RootPart.Velocity.Y, directionVector.Z)
         else
             if not Config.AutoBat and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
@@ -362,7 +363,7 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
--- [[ AGGRESSIVE ENEMY CHASE & BAT CONTROLLER ]] --
+-- [[ HIGH INTENSITY AGGRESSIVE CHASE ENGINE ]] --
 task.spawn(function()
     while true do
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
@@ -386,6 +387,8 @@ task.spawn(function()
                 if checkBrainrot() then dynamicSpeed = Config.AfterGrabSpeed end
 
                 if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
+                
+                -- Dynamic hyper-push generation vectors towards target player coordinates
                 local velocityVector = (targetEnemy.Position - RootPart.Position).Unit * dynamicSpeed
                 NetworkMoveVelocity.Velocity = Vector3.new(velocityVector.X, RootPart.Velocity.Y, velocityVector.Z)
 
@@ -400,7 +403,7 @@ task.spawn(function()
         else
             if not Config.AutoplayActive and NetworkMoveVelocity.Parent then NetworkMoveVelocity.Parent = nil end
         end
-        task.wait(0.02)
+        task.wait(0.01) -- Decreased loop latency for instant tracking reaction frames
     end
 end)
 
@@ -413,4 +416,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub | Undetected Restructured & UI Fixed!")
+print("Lunar Hub | V16 Max Velocity Override Active!")
