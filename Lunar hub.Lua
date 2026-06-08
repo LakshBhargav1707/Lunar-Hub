@@ -235,4 +235,175 @@ local function updateSelectionButtons()
     if Config.PlayMode == "Autoplay" then
         BtnManual.Text = "AUTOPLAY"
         if Config.SideSelection == "Left" then
-            BtnLeft.BackgroundColor3 = Color3.fromRGB(115, 90,
+            BtnLeft.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+            MiniSide.Text = "LEFT"
+            MiniSide.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+        else
+            BtnRight.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+            MiniSide.Text = "RIGHT"
+            MiniSide.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+        end
+    else
+        BtnManual.Text = "MANUAL"
+        BtnManual.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+        MiniSide.Text = "MANUAL"
+        MiniSide.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    end
+end
+
+BtnLeft.MouseButton1Click:Connect(function()
+    Config.SideSelection = "Left"
+    Config.PlayMode = "Autoplay"
+    updateSelectionButtons()
+end)
+
+BtnRight.MouseButton1Click:Connect(function()
+    Config.SideSelection = "Right"
+    Config.PlayMode = "Autoplay"
+    updateSelectionButtons()
+end)
+
+BtnManual.MouseButton1Click:Connect(function()
+    if Config.PlayMode == "Manual" then
+        Config.PlayMode = "Autoplay"
+    else
+        Config.PlayMode = "Manual"
+    end
+    updateSelectionButtons()
+end)
+
+MiniSide.MouseButton1Click:Connect(function()
+    if Config.PlayMode == "Manual" then
+        Config.PlayMode = "Autoplay"
+        Config.SideSelection = "Left"
+    elseif Config.PlayMode == "Autoplay" and Config.SideSelection == "Left" then
+        Config.SideSelection = "Right"
+    else
+        Config.PlayMode = "Manual"
+    end
+    updateSelectionButtons()
+end)
+
+createUIElementLabel("Features", 238)
+
+local function createMainPanelToggle(name, y, configKey, callbackOn)
+    local frameBtn = Instance.new("TextButton", ScrollFrame)
+    frameBtn.Size = UDim2.new(0, 215, 0, 30) -- Medium sizing
+    frameBtn.Position = UDim2.new(0, 12, 0, y)
+    frameBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
+    frameBtn.Text = "  " .. name .. ": OFF"
+    frameBtn.Font = Enum.Font.GothamBold
+    frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
+    frameBtn.TextXAlignment = Enum.TextXAlignment.Left
+    frameBtn.TextSize = 11
+    Instance.new("UICorner", frameBtn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", frameBtn).Color = Color3.fromRGB(45, 45, 55)
+
+    local function toggleState()
+        Config[configKey] = not Config[configKey]
+        if Config[configKey] then
+            frameBtn.Text = "  " .. name .. ": ON"
+            frameBtn.TextColor3 = Color3.fromRGB(80, 200, 80)
+            if callbackOn then callbackOn(true) end
+        else
+            frameBtn.Text = "  " .. name .. ": OFF"
+            frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
+            if callbackOn then callbackOn(false) end
+        end
+    end
+    frameBtn.MouseButton1Click:Connect(toggleState)
+    return toggleState
+end
+
+local toggleSteal = createMainPanelToggle("Auto Loop Steal", 258, "AutoLoopSteal")
+local toggleBat = createMainPanelToggle("Auto Bat + AimLock", 294, "AutoBat", function(state)
+    if state then
+        MiniBat.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+    else
+        MiniBat.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    end
+end)
+
+MiniBat.MouseButton1Click:Connect(function() toggleBat() end)
+createMainPanelToggle("Infinite Jump (Safe Mode)", 330, "InfiniteJump")
+
+-- [[ SECURE MOVEMENT & PHYSICS OVERRIDE ]] --
+
+RunService.Heartbeat:Connect(function()
+    if Character and Humanoid and RootPart and Humanoid.Health > 0 then
+        if Config.AutoLoopSteal then
+            autoGrabLogic()
+        end
+
+        local targetMaxSpeed = Config.NormalSpeed
+        if Config.AutoLoopSteal then
+            if checkBrainrot() then
+                targetMaxSpeed = Config.AfterGrabSpeed
+            else
+                targetMaxSpeed = Config.BeforeGrabSpeed
+            end
+        end
+
+        if Humanoid.MoveDirection.Magnitude > 0 then
+            local adjustedDeltaOffset = Humanoid.MoveDirection * (targetMaxSpeed - 16) * 0.0155
+            RootPart.CFrame = RootPart.CFrame + adjustedDeltaOffset
+        end
+
+        if Config.PlayMode == "Autoplay" then
+            local stepVector = Vector3.new(0, 0, 0)
+            if Config.SideSelection == "Left" then
+                stepVector = RootPart.CFrame.RightVector * -0.28
+            elseif Config.SideSelection == "Right" then
+                stepVector = RootPart.CFrame.RightVector * 0.28
+            end
+            RootPart.CFrame = RootPart.CFrame + stepVector
+        end
+    end
+end)
+
+-- Fully Encrypted Local Replication Weapon Controller
+task.spawn(function()
+    while true do
+        if Config.AutoBat and checkBrainrot() and RootPart then
+            local targetingCap = nil
+            local scanRange = 22
+
+            for _, scanPlayer in pairs(Players:GetPlayers()) do
+                if scanPlayer ~= LocalPlayer and scanPlayer.Character and scanPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local playerRoot = scanPlayer.Character.HumanoidRootPart
+                    local currentRange = (RootPart.Position - playerRoot.Position).Magnitude
+                    
+                    if currentRange < scanRange then
+                        scanRange = currentRange
+                        targetingCap = playerRoot
+                    end
+                end
+            end
+
+            if targetingCap then
+                local visualMatrix = Vector3.new(targetingCap.Position.X, RootPart.Position.Y, targetingCap.Position.Z)
+                RootPart.CFrame = CFrame.lookAt(RootPart.Position, visualMatrix)
+                
+                local systemTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+                if systemTool then
+                    if systemTool.Parent ~= Character then systemTool.Parent = Character end
+                    pcall(function()
+                        systemTool:Activate()
+                    end)
+                end
+            end
+        end
+        task.wait(0.04)
+    end
+end)
+
+-- Safe Micro-Interval High Jump
+local lastSafeJump = 0
+UIS.JumpRequest:Connect(function()
+    if Config.InfiniteJump and RootPart and (tick() - lastSafeJump) > 0.15 then
+        lastSafeJump = tick()
+        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 4.5, 0)
+    end
+end)
+
+print("Lunar Hub Duel Script: Compact Version Deployed!")
