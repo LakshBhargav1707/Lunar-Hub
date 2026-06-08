@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - V16.7 Solid Button Fix ]] --
+-- [[ Lunar Hub | Undetected - V17.0 Ultimate Interface Reset ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -13,7 +13,7 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Clean Up Old Interface Fully
+-- Clean Up EVERY Previous Layer
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
@@ -86,12 +86,12 @@ local function autoGrabLogic()
     end
 end
 
--- [[ OUTSIDE THE PANEL - TINY MOBILE CONTROLS (FIXED TOUCH) ]] --
+-- [[ OUTSIDE THE PANEL - TINY MOBILE CONTROLS ]] --
 local MobileGui = Instance.new("ScreenGui")
 MobileGui.Name = "LunarMobileUI"
 MobileGui.Parent = TargetGuiParent
 MobileGui.ResetOnSpawn = false
-MobileGui.DisplayOrder = 99999 -- Forced on top layer of screen
+MobileGui.DisplayOrder = 99999
 
 local Layout = Instance.new("Frame", MobileGui)
 Layout.Size = UDim2.new(0, 180, 0, 40)
@@ -112,7 +112,7 @@ local function createMiniControlBtn(text, order)
     btn.Text = text
     btn.TextSize = 11
     btn.LayoutOrder = order
-    btn.Active = true -- Enabled active interaction layer
+    btn.Active = true
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", btn).Color = Color3.fromRGB(50, 50, 60)
     return btn
@@ -123,7 +123,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ INTERIOR CONFIGURATION PANEL (FIXED HIERARCHY) ]] --
+-- [[ INTERIOR MAIN PANEL (NO SCROLL GRID EDITIONS) ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -132,9 +132,11 @@ MainGui.DisplayOrder = 99998
 
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 200, 0, 310)
-MainFrame.Position = UDim2.new(0.5, -100, 0.5, -155)
+MainFrame.Size = UDim2.new(0, 210, 0, 345) -- Balanced fixed height
+MainFrame.Position = UDim2.new(0.5, -105, 0.5, -172)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.Active = true
+MainFrame.Draggable = true 
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(55, 45, 90)
 
@@ -142,9 +144,6 @@ local HeaderFrame = Instance.new("Frame", MainFrame)
 HeaderFrame.Size = UDim2.new(1, 0, 0, 32)
 HeaderFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 Instance.new("UICorner", HeaderFrame).CornerRadius = UDim.new(0, 8)
-
-MainFrame.Active = true
-MainFrame.Draggable = true 
 
 local MainTitle = Instance.new("TextLabel", HeaderFrame)
 MainTitle.Size = UDim2.new(1, 0, 1, 0)
@@ -154,31 +153,23 @@ MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
 MainTitle.TextSize = 11
 
-local ScrollFrame = Instance.new("ScrollingFrame", MainFrame)
-ScrollFrame.Size = UDim2.new(1, 0, 1, -36)
-ScrollFrame.Position = UDim2.new(0, 0, 0, 34)
-ScrollFrame.BackgroundTransparency = 1
-ScrollFrame.ClipsDescendants = true
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 420)
-ScrollFrame.ScrollBarThickness = 3
-ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(115, 90, 230)
+-- Container to hold layout directly avoiding clipping/scrolling bugs
+local Container = Instance.new("Frame", MainFrame)
+Container.Size = UDim2.new(1, -20, 1, -42)
+Container.Position = UDim2.new(0, 10, 0, 38)
+Container.BackgroundTransparency = 1
 
-local UIListLayout = Instance.new("UIListLayout", ScrollFrame)
+local UIListLayout = Instance.new("UIListLayout", Container)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Padding = UDim.new(0, 4)
 
-local UIPadding = Instance.new("UIPadding", ScrollFrame)
-UIPadding.PaddingLeft = UDim.new(0, 10)
-UIPadding.PaddingTop = UDim.new(0, 8)
-
--- FIXED TOGGLE PANELS TRIGGER VIA ACTIVATED
 MiniToggle.Activated:Connect(function() 
     MainFrame.Visible = not MainFrame.Visible 
 end)
 
 local function createUIElementLabel(text, order)
-    local lbl = Instance.new("TextLabel", ScrollFrame)
-    lbl.Size = UDim2.new(0, 175, 0, 14)
+    local lbl = Instance.new("TextLabel", Container)
+    lbl.Size = UDim2.new(1, 0, 0, 14)
     lbl.BackgroundTransparency = 1
     lbl.Text = text:upper()
     lbl.TextColor3 = Color3.fromRGB(130, 130, 140)
@@ -190,8 +181,8 @@ local function createUIElementLabel(text, order)
 end
 
 local function createTextBoxInput(default, configKey, order)
-    local box = Instance.new("TextBox", ScrollFrame)
-    box.Size = UDim2.new(0, 175, 0, 24)
+    local box = Instance.new("TextBox", Container)
+    box.Size = UDim2.new(1, 0, 0, 24)
     box.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     box.TextColor3 = Color3.fromRGB(255, 255, 255)
     box.PlaceholderText = default
@@ -212,7 +203,7 @@ local function createTextBoxInput(default, configKey, order)
     return box
 end
 
--- RENDER ALL SPEED FIELDS
+-- RENDER SPEED CONTROLS
 createUIElementLabel("Speed Control", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
 
@@ -224,8 +215,8 @@ createTextBoxInput("35", "AfterGrabSpeed", 6)
 
 createUIElementLabel("Set Autoplay Direction", 7)
 
-local InsideSideBtn = Instance.new("TextButton", ScrollFrame)
-InsideSideBtn.Size = UDim2.new(0, 175, 0, 26)
+local InsideSideBtn = Instance.new("TextButton", Container)
+InsideSideBtn.Size = UDim2.new(1, 0, 0, 26)
 InsideSideBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 InsideSideBtn.Text = "DEFAULT SIDE: RIGHT"
 InsideSideBtn.Font = Enum.Font.GothamBold
@@ -234,8 +225,7 @@ InsideSideBtn.TextSize = 10
 InsideSideBtn.LayoutOrder = 8
 InsideSideBtn.Active = true
 Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
-local insideStroke = Instance.new("UIStroke", InsideSideBtn)
-insideStroke.Color = Color3.fromRGB(45, 45, 55)
+Instance.new("UIStroke", InsideSideBtn).Color = Color3.fromRGB(45, 45, 55)
 
 local function refreshOutsideAutoplayVisuals()
     if Config.AutoplayActive then
@@ -247,7 +237,6 @@ local function refreshOutsideAutoplayVisuals()
     end
 end
 
--- ACTIVATED TRIGGERS INSTEAD OF CLICK EVENTS
 InsideSideBtn.Activated:Connect(function()
     if Config.CurrentDirection == "Right" then
         Config.CurrentDirection = "Left"
@@ -275,11 +264,12 @@ end)
 
 createUIElementLabel("Features Toggle", 9)
 
+-- FIXED INDEPENDENT TOGGLE FACTORY
 local function createMainPanelToggle(name, configKey, order, callback)
-    local frameBtn = Instance.new("TextButton", ScrollFrame)
-    frameBtn.Size = UDim2.new(0, 175, 0, 26)
+    local frameBtn = Instance.new("TextButton", Container)
+    frameBtn.Size = UDim2.new(1, 0, 0, 26)
     frameBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
-    frameBtn.Text = " " .. name .. ": OFF"
+    frameBtn.Text = "  " .. name .. ": OFF"
     frameBtn.Font = Enum.Font.GothamBold
     frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
     frameBtn.TextXAlignment = Enum.TextXAlignment.Left
@@ -292,17 +282,18 @@ local function createMainPanelToggle(name, configKey, order, callback)
     frameBtn.Activated:Connect(function()
         Config[configKey] = not Config[configKey]
         if Config[configKey] then
-            frameBtn.Text = " " .. name .. ": ON"
+            frameBtn.Text = "  " .. name .. ": ON"
             frameBtn.TextColor3 = Color3.fromRGB(80, 200, 80)
             if callback then callback(true) end
         else
-            frameBtn.Text = " " .. name .. ": OFF"
+            frameBtn.Text = "  " .. name .. ": OFF"
             frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
             if callback then callback(false) end
         end
     end)
 end
 
+-- ALL THREE BUTTONS RESTORED CORRECTLY HERE
 createMainPanelToggle("Auto Loop Steal", "AutoLoopSteal", 10)
 createMainPanelToggle("Infinite Jump", "InfiniteJump", 11)
 
@@ -333,7 +324,7 @@ createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     end
 end)
 
--- [[ BYPASS MOVEMENT SYSTEM ]] --
+-- [[ BYPASS MOVEMENT ENGINE ]] --
 RunService.Heartbeat:Connect(function(deltaTime)
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
@@ -401,4 +392,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub | Perfect Native Touch Interface Applied!")
+print("Lunar Hub | Clean Interface Reset Applied Successfully!")
