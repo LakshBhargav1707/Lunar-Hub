@@ -1,3 +1,7 @@
+-- Lunar Hub (GUI Only)
+-- This is a UI template. Toggle states and textboxes work in the interface,
+-- but no game automation/exploit actions are connected.
+
 local UIS = game:GetService("UserInputService")
 
 pcall(function()
@@ -9,67 +13,73 @@ ScreenGui.Name = "LunarHub"
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.ResetOnSpawn = false
 
--- Main Frame
 local Frame = Instance.new("Frame")
 Frame.Parent = ScreenGui
-Frame.Size = UDim2.new(0, 280, 0, 400)
-Frame.Position = UDim2.new(0.5, -140, 0.5, -200)
-Frame.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+Frame.Size = UDim2.new(0, 280, 0, 500)
+Frame.Position = UDim2.new(0.5, -140, 0.5, -250)
+Frame.BackgroundColor3 = Color3.fromRGB(18,18,24)
 Frame.BorderSizePixel = 0
 Frame.Active = true
 
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 12)
-Corner.Parent = Frame
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,12)
 
--- Title
-local Title = Instance.new("TextLabel")
-Title.Parent = Frame
-Title.Size = UDim2.new(1, -50, 0, 45)
-Title.Position = UDim2.new(0, 15, 0, 0)
-Title.BackgroundTransparency = 1
-Title.Text = "Lunar Hub"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+local function createLabel(text, y)
+    local lbl = Instance.new("TextLabel")
+    lbl.Parent = Frame
+    lbl.Position = UDim2.new(0,15,0,y)
+    lbl.Size = UDim2.new(0,120,0,30)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = Color3.new(1,1,1)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 16
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    return lbl
+end
+
+local function createBox(default, y)
+    local box = Instance.new("TextBox")
+    box.Parent = Frame
+    box.Position = UDim2.new(0,150,0,y)
+    box.Size = UDim2.new(0,110,0,30)
+    box.BackgroundColor3 = Color3.fromRGB(30,30,40)
+    box.TextColor3 = Color3.new(1,1,1)
+    box.PlaceholderText = default
+    box.Text = default
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 14
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
+    return box
+end
+
+local Title = createLabel("Lunar Hub", 10)
+Title.TextColor3 = Color3.fromRGB(170,85,255)
 Title.TextStrokeTransparency = 0
-Title.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-Title.Font = Enum.Font.GothamBold
+Title.TextStrokeColor3 = Color3.new(0,0,0)
 Title.TextSize = 24
-Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Minimize Button
 local Minimize = Instance.new("TextButton")
 Minimize.Parent = Frame
-Minimize.Size = UDim2.new(0, 30, 0, 30)
-Minimize.Position = UDim2.new(1, -40, 0, 10)
+Minimize.Position = UDim2.new(1,-40,0,10)
+Minimize.Size = UDim2.new(0,30,0,30)
 Minimize.BackgroundTransparency = 1
 Minimize.Text = "-"
-Minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
-Minimize.TextStrokeTransparency = 0
-Minimize.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+Minimize.TextColor3 = Color3.new(1,1,1)
 Minimize.Font = Enum.Font.GothamBold
 Minimize.TextSize = 28
 
--- Mini Button
 local Mini = Instance.new("TextButton")
 Mini.Parent = ScreenGui
-Mini.Size = UDim2.new(0, 100, 0, 35)
-Mini.Position = UDim2.new(0, 20, 0.5, 0)
-Mini.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
-Mini.BorderSizePixel = 0
+Mini.Size = UDim2.new(0,100,0,35)
+Mini.Position = UDim2.new(0,20,0.5,0)
 Mini.Visible = false
+Mini.BackgroundColor3 = Color3.fromRGB(18,18,24)
 Mini.Text = "Lunar Hub"
-Mini.TextColor3 = Color3.fromRGB(255, 255, 255)
-Mini.TextStrokeTransparency = 0
-Mini.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+Mini.TextColor3 = Color3.new(1,1,1)
 Mini.Font = Enum.Font.GothamBold
 Mini.TextSize = 16
-Mini.Active = true
+Instance.new("UICorner", Mini).CornerRadius = UDim.new(0,10)
 
-local MiniCorner = Instance.new("UICorner")
-MiniCorner.CornerRadius = UDim.new(0, 10)
-MiniCorner.Parent = Mini
-
--- Minimize/Open
 Minimize.MouseButton1Click:Connect(function()
     Frame.Visible = false
     Mini.Visible = true
@@ -80,88 +90,56 @@ Mini.MouseButton1Click:Connect(function()
     Mini.Visible = false
 end)
 
--- Drag Main Frame
-local dragging = false
-local dragInput
-local dragStart
-local startPos
+createLabel("Speed", 70)
+createBox("32", 70)
 
-Frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseButton1 then
+createLabel("Before Grab", 115)
+createBox("30", 115)
 
-        dragging = true
-        dragStart = input.Position
-        startPos = Frame.Position
+createLabel("After Grab", 160)
+createBox("30", 160)
 
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
+createLabel("Side Selection", 210)
+
+local Left = Instance.new("TextButton")
+Left.Parent = Frame
+Left.Position = UDim2.new(0,15,0,245)
+Left.Size = UDim2.new(0,110,0,35)
+Left.Text = "Left"
+
+local Right = Left:Clone()
+Right.Parent = Frame
+Right.Position = UDim2.new(0,150,0,245)
+Right.Text = "Right"
+
+createLabel("Mode", 295)
+
+local Mode = Instance.new("TextButton")
+Mode.Parent = Frame
+Mode.Position = UDim2.new(0,150,0,295)
+Mode.Size = UDim2.new(0,110,0,35)
+Mode.Text = "AutoPlay"
+
+Mode.MouseButton1Click:Connect(function()
+    Mode.Text = Mode.Text == "AutoPlay" and "Manual" or "AutoPlay"
 end)
 
-Frame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
+local function createToggle(name, y)
+    createLabel(name, y)
 
-UIS.InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        local delta = input.Position - dragStart
+    local btn = Instance.new("TextButton")
+    btn.Parent = Frame
+    btn.Position = UDim2.new(0,150,0,y)
+    btn.Size = UDim2.new(0,110,0,35)
+    btn.Text = "OFF"
 
-        Frame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
+    btn.MouseButton1Click:Connect(function()
+        btn.Text = btn.Text == "OFF" and "ON" or "OFF"
+    end)
+end
 
--- Drag Mini Button
-local miniDragging = false
-local miniDragInput
-local miniDragStart
-local miniStartPos
+createToggle("Auto Loop Steal", 345)
+createToggle("Auto Bat", 390)
+createToggle("Infinite Jump", 435)
 
-Mini.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseButton1 then
-
-        miniDragging = true
-        miniDragStart = input.Position
-        miniStartPos = Mini.Position
-
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                miniDragging = false
-            end
-        end)
-    end
-end)
-
-Mini.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-    or input.UserInputType == Enum.UserInputType.MouseMovement then
-        miniDragInput = input
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if miniDragging and input == miniDragInput then
-        local delta = input.Position - miniDragStart
-
-        Mini.Position = UDim2.new(
-            miniStartPos.X.Scale,
-            miniStartPos.X.Offset + delta.X,
-            miniStartPos.Y.Scale,
-            miniStartPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
-print("Lunar Hub Loaded!")
+print("Lunar Hub UI Loaded")
