@@ -1,5 +1,4 @@
 -- [[ LakshByte - Custom Brainrot Steal Hub UI Wrapper ]] --
-
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
 
 local Window = Library:CreateWindow({
@@ -7,24 +6,33 @@ local Window = Library:CreateWindow({
    LoadingTitle = "Loading System...",
    LoadingSubtitle = "by LakshByte",
    ConfigurationSaving = {
-      Enabled = true,
+      Enabled = false,
       FolderName = "LunarHubConfig",
       FileName = "BrainrotConfig"
    }
 })
 
-local MainTab = Window:CreateTab("Main Cheats", 4483362458) -- Title tab
+local MainTab = Window:CreateTab("Main Cheats", 4483362458)
 
 -- [[ VARIABLES FOR LOGIC ]] --
-local Humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
-local RootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local RootPart = Character:WaitForChild("HumanoidRootPart")
+
+-- Character reset hone par variables auto-update honge
+Player.CharacterAdded:Connect(function(NewChar)
+    Character = NewChar
+    Humanoid = NewChar:WaitForChild("Humanoid")
+    RootPart = NewChar:WaitForChild("HumanoidRootPart")
+end)
 
 local Config = {
     NormalSpeed = 32,
     BeforeGrabSpeed = 30,
     AfterGrabSpeed = 30,
-    SideSelection = "Left", -- Default Side
-    PlayMode = "Autoplay", -- Default Mode
+    SideSelection = "Left",
+    PlayMode = "Autoplay",
     AutoLoopSteal = false,
     AutoBat = false,
     InfiniteJump = false
@@ -39,7 +47,7 @@ MainTab:CreateInput({
    RemoveTextAfterFocusLost = false,
    Callback = function(Text)
       local speed = tonumber(Text)
-      if speed then
+      if speed and Humanoid then
           Config.NormalSpeed = speed
           Humanoid.WalkSpeed = speed
       end
@@ -69,7 +77,6 @@ MainTab:CreateInput({
 -- [[ 2. SIDE SELECTION & MODE ]] --
 MainTab:CreateSection("Side Selection & Mode")
 
--- Dynamic Side Selection Button
 local SideBtn
 SideBtn = MainTab:CreateButton({
    Name = "Side Selection: LEFT",
@@ -84,7 +91,6 @@ SideBtn = MainTab:CreateButton({
    end,
 })
 
--- Mode Toggle Button (Autoplay / Manual)
 local ModeBtn
 ModeBtn = MainTab:CreateButton({
    Name = "Mode: Autoplay",
@@ -109,25 +115,26 @@ MainTab:CreateToggle({
    Callback = function(Value)
       Config.AutoLoopSteal = Value
       
-      -- Auto Loop Logic
       task.spawn(function()
           while Config.AutoLoopSteal do
-              -- Speed update checking based on grabbing
-              local hasBrainrot = game.Players.LocalPlayer.Character:FindFirstChild("Brainrot") -- Check tool name in game
-              if hasBrainrot then
-                  Humanoid.WalkSpeed = Config.AfterGrabSpeed
-              else
-                  Humanoid.WalkSpeed = Config.BeforeGrabSpeed
-              end
-              
-              -- Teleportation/Movement based on Side Selection Panel
-              if Config.PlayMode == "Autoplay" then
-                  if Config.SideSelection == "Left" then
-                      -- Tumhare game ka left corner position vector yahan aayega
-                      -- RootPart.CFrame = CFrame.new(Left_X_Coord, Left_Y_Coord, Left_Z_Coord)
-                  elseif Config.SideSelection == "Right" then
-                      -- Tumhare game ka right corner position vector yahan aayega
-                      -- RootPart.CFrame = CFrame.new(Right_X_Coord, Right_Y_Coord, Right_Z_Coord)
+              if Character and Humanoid then
+                  -- Check tool named "Brainrot" or similar in Character
+                  local hasBrainrot = Character:FindFirstChild("Brainrot") or Player.Backpack:FindFirstChild("Brainrot")
+                  if hasBrainrot then
+                      Humanoid.WalkSpeed = Config.AfterGrabSpeed
+                  else
+                      Humanoid.WalkSpeed = Config.BeforeGrabSpeed
+                  end
+                  
+                  -- Autoplay corner movement logic
+                  if Config.PlayMode == "Autoplay" and RootPart then
+                      if Config.SideSelection == "Left" then
+                          -- Left movement action (Ya toh walk ya halka teleport)
+                          -- RootPart.CFrame = RootPart.CFrame * CFrame.new(-1, 0, 0)
+                       Rhineif Config.SideSelection == "Right" then
+                          -- Right movement action
+                          -- RootPart.CFrame = RootPart.CFrame * CFrame.new(1, 0, 0)
+                      end
                   end
               end
               task.wait(0.1)
@@ -145,16 +152,17 @@ MainTab:CreateToggle({
       
       task.spawn(function()
           while Config.AutoBat do
-              local hasBrainrot = game.Players.LocalPlayer.Character:FindFirstChild("Brainrot")
-              if hasBrainrot then
-                  -- Find Nearest Player
+              if Character and RootPart then
                   for _, player in pairs(game.Players:GetPlayers()) do
-                      if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                          local targetDist = (RootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
-                          if targetDist < 15 then -- Range to hit
-                              -- Trigger your game's Bat Hit Remote or Tool Activation
-                              local Bat = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool")
-                              if Bat then Bat:Activate() end
+                      if player ~= Player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                          local targetRoot = player.Character.HumanoidRootPart
+                          local targetDist = (RootPart.Position - targetRoot.Position).Magnitude
+                          
+                          if targetDist < 15 then 
+                              local Tool = Character:FindFirstChildOfClass("Tool")
+                              if Tool then 
+                                  Tool:Activate() 
+                              end
                           end
                       end
                   end
@@ -177,9 +185,8 @@ MainTab:CreateToggle({
    end,
 })
 
--- Services Connection for Infinite Jump
 game:GetService("UserInputService").JumpRequest:Connect(function()
-    if Config.InfiniteJump then
-        Humanoid:ChangeState("Jumping")
+    if Config.InfiniteJump and Humanoid then
+        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
