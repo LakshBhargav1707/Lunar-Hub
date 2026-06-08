@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected V1 — Master Re-Engineered Edition ]] --
+-- [[ Lunar Hub | Undetected V1 — Official GitHub Production Release ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -10,11 +10,10 @@ local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Robust UI Clean Wipe to avoid overlay hangs
-if PlayerGui:FindFirstChild("LunarHub_Master") then PlayerGui:FindFirstChild("LunarHub_Master"):Destroy() end
-if PlayerGui:FindFirstChild("LunarMobileUI") then PlayerGui:FindFirstChild("LunarMobileUI"):Destroy() end
+-- Anti-Duplication Overlap Check
+if PlayerGui:FindFirstChild("LunarHub_FinalV1") then PlayerGui:FindFirstChild("LunarHub_FinalV1"):Destroy() end
 
--- [[ CORE SYSTEM CONFIG ]] --
+-- [[ CONFIGURATION REGISTER ]] --
 local Config = {
     NormalSpeed = 16,
     BeforeGrabSpeed = 32, 
@@ -26,6 +25,13 @@ local Config = {
     InfiniteJump = false
 }
 
+-- Character State Management Tracking
+LocalPlayer.CharacterAdded:Connect(function(newChar)
+    Character = newChar
+    Humanoid = newChar:WaitForChild("Humanoid")
+    RootPart = newChar:WaitForChild("HumanoidRootPart")
+end)
+
 local function checkBrainrot()
     if Character then
         return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot") or 
@@ -34,7 +40,7 @@ local function checkBrainrot()
     return false
 end
 
--- Server Touch Register Interceptor
+-- Optimized Instant Steal Logic
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
@@ -53,48 +59,48 @@ local function autoGrabLogic()
     end
 end
 
--- [[ CORE SCREEN GUI LAYER ]] --
+-- [[ THE SCREEN ARCHITECTURE LAYER ]] --
 local MainGui = Instance.new("ScreenGui")
-MainGui.Name = "LunarHub_Master"
+MainGui.Name = "LunarHub_FinalV1"
 MainGui.Parent = PlayerGui
 MainGui.ResetOnSpawn = false
 MainGui.DisplayOrder = 99999
 
--- [[ SMART FLOATING MINIMIZE TOGGLE ICON ]] --
+-- [[ MINIMIZED FLOATING ICON ]] --
 local MinimizedIcon = Instance.new("TextButton", MainGui)
 MinimizedIcon.Name = "MinimizedIcon"
-MinimizedIcon.Size = UDim2.new(0, 46, 0, 46)
-MinimizedIcon.Position = UDim2.new(0, 15, 0, 140) -- Perfect floating access spot on mobile screens
-MinimizedIcon.BackgroundColor3 = Color3.fromRGB(16, 16, 24)
+MinimizedIcon.Size = UDim2.new(0, 45, 0, 45)
+MinimizedIcon.Position = UDim2.new(0, 20, 0, 160)
+MinimizedIcon.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
 MinimizedIcon.Text = "🌙"
 MinimizedIcon.TextSize = 18
 MinimizedIcon.Font = Enum.Font.GothamBold
 MinimizedIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
-MinimizedIcon.Visible = false -- Off initially
+MinimizedIcon.Visible = false
 MinimizedIcon.Active = true
 MinimizedIcon.Draggable = true
 Instance.new("UICorner", MinimizedIcon).CornerRadius = UDim.new(0, 10)
-local IconBorder = Instance.new("UIStroke", MinimizedIcon)
-IconBorder.Color = Color3.fromRGB(115, 90, 230)
-IconBorder.Width = 2
+local IconStroke = Instance.new("UIStroke", MinimizedIcon)
+IconStroke.Color = Color3.fromRGB(115, 90, 230)
+IconStroke.Width = 2
 
--- [[ HIGH-END VERTICAL PANEL (REVUL ADAPTATION LAYER) ]] --
+-- [[ MAIN VERTICAL STRUCTURE FRAME ]] --
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 240, 0, 410)
-MainFrame.Position = UDim2.new(0.5, -120, 0.5, -205) -- Always spawns directly center stage
-MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 15)
+MainFrame.Size = UDim2.new(0, 245, 0, 415)
+MainFrame.Position = UDim2.new(0.5, -122, 0.5, -207)
+MainFrame.BackgroundColor3 = Color3.fromRGB(13, 13, 16)
 MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Draggable = true 
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
-local PanelBorder = Instance.new("UIStroke", MainFrame)
-PanelBorder.Color = Color3.fromRGB(115, 90, 230)
-PanelBorder.Transparency = 0.25
+local FrameBorder = Instance.new("UIStroke", MainFrame)
+FrameBorder.Color = Color3.fromRGB(115, 90, 230)
+FrameBorder.Transparency = 0.15
 
--- Top Navigation Header Window
+-- Top Bar Header Panel
 local Header = Instance.new("Frame", MainFrame)
-Header.Size = UDim2.new(1, 0, 0, 36)
-Header.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+Header.Size = UDim2.new(1, 0, 0, 35)
+Header.BackgroundColor3 = Color3.fromRGB(18, 18, 25)
 Instance.new("UICorner", Header).CornerRadius = UDim.new(0, 8)
 
 local TitleText = Instance.new("TextLabel", Header)
@@ -107,7 +113,7 @@ TitleText.Font = Enum.Font.GothamBold
 TitleText.TextSize = 11
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
 
--- Working Mini/Max Button Setup
+-- Working Real-time Minimize Controls
 local MinimizeBtn = Instance.new("TextButton", Header)
 MinimizeBtn.Size = UDim2.new(0, 24, 0, 24)
 MinimizeBtn.Position = UDim2.new(1, -32, 0, 6)
@@ -126,16 +132,16 @@ end)
 MinimizedIcon.Activated:Connect(function()
     MinimizedIcon.Visible = false
     MainFrame.Visible = true
-    MainFrame.Position = UDim2.new(0.5, -120, 0.5, -205)
+    MainFrame.Position = UDim2.new(0.5, -122, 0.5, -207)
 end)
 
--- Main Scroller Sheet Container
+-- Main Scroller Deck Canvas
 local ContainerScroll = Instance.new("ScrollingFrame", MainFrame)
 ContainerScroll.Size = UDim2.new(1, -16, 1, -46)
 ContainerScroll.Position = UDim2.new(0, 8, 0, 40)
 ContainerScroll.BackgroundTransparency = 1
-ContainerScroll.CanvasSize = UDim2.new(0, 0, 0, 490)
-ContainerScroll.ScrollBarThickness = 3
+ContainerScroll.CanvasSize = UDim2.new(0, 0, 0, 500)
+ContainerScroll.ScrollBarThickness = 2
 ContainerScroll.ScrollBarImageColor3 = Color3.fromRGB(115, 90, 230)
 
 local FlowLayout = Instance.new("UIListLayout", ContainerScroll)
@@ -147,7 +153,7 @@ local function appendSectionTitle(text, order)
     block.Size = UDim2.new(1, 0, 0, 16)
     block.BackgroundTransparency = 1
     block.Text = text:upper()
-    block.TextColor3 = Color3.fromRGB(140, 140, 155)
+    block.TextColor3 = Color3.fromRGB(145, 145, 160)
     block.Font = Enum.Font.GothamBold
     block.TextSize = 9
     block.TextXAlignment = Enum.TextXAlignment.Left
@@ -160,7 +166,7 @@ local function appendNumericalValueInput(label, key, defaultVal, order)
     
     local entryBox = Instance.new("TextBox", ContainerScroll)
     entryBox.Size = UDim2.new(1, 0, 0, 26)
-    entryBox.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+    entryBox.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
     entryBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     entryBox.Text = tostring(defaultVal)
     entryBox.Font = Enum.Font.GothamSemibold
@@ -168,7 +174,7 @@ local function appendNumericalValueInput(label, key, defaultVal, order)
     entryBox.LayoutOrder = order + 1
     Instance.new("UICorner", entryBox).CornerRadius = UDim.new(0, 5)
     local boxStroke = Instance.new("UIStroke", entryBox)
-    boxStroke.Color = Color3.fromRGB(50, 50, 65)
+    boxStroke.Color = Color3.fromRGB(55, 55, 70)
 
     entryBox.FocusLost:Connect(function()
         local convertedNum = tonumber(entryBox.Text)
@@ -182,7 +188,7 @@ end
 local function appendFunctionalToggle(name, key, order)
     local actionBtn = Instance.new("TextButton", ContainerScroll)
     actionBtn.Size = UDim2.new(1, 0, 0, 28)
-    actionBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+    actionBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
     actionBtn.Text = "   " .. name .. ": OFF"
     actionBtn.TextColor3 = Color3.fromRGB(240, 100, 100)
     actionBtn.Font = Enum.Font.GothamBold
@@ -191,7 +197,7 @@ local function appendFunctionalToggle(name, key, order)
     actionBtn.LayoutOrder = order
     Instance.new("UICorner", actionBtn).CornerRadius = UDim.new(0, 5)
     local toggleStroke = Instance.new("UIStroke", actionBtn)
-    toggleStroke.Color = Color3.fromRGB(50, 50, 65)
+    toggleStroke.Color = Color3.fromRGB(55, 55, 70)
 
     actionBtn.Activated:Connect(function()
         Config[key] = not Config[key]
@@ -202,13 +208,13 @@ local function appendFunctionalToggle(name, key, order)
         else
             actionBtn.Text = "   " .. name .. ": OFF"
             actionBtn.TextColor3 = Color3.fromRGB(240, 100, 100)
-            actionBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+            actionBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
         end
     end)
     return actionBtn
 end
 
--- Assemble Complete Workspace Blocks
+-- Render Layout Configs
 appendNumericalValueInput("Base Default WalkSpeed", "NormalSpeed", 16, 1)
 appendNumericalValueInput("Chasing Target Velocity (Before Grab)", "BeforeGrabSpeed", 32, 3)
 appendNumericalValueInput("Sweeping Velocity Load (After Grab)", "AfterGrabSpeed", 35, 5)
@@ -216,7 +222,7 @@ appendNumericalValueInput("Sweeping Velocity Load (After Grab)", "AfterGrabSpeed
 appendSectionTitle("Autoplay Side Configuration", 7)
 local DirectionSelector = Instance.new("TextButton", ContainerScroll)
 DirectionSelector.Size = UDim2.new(1, 0, 0, 28)
-DirectionSelector.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+DirectionSelector.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
 DirectionSelector.Text = "DEFAULT SIDE: RIGHT"
 DirectionSelector.TextColor3 = Color3.fromRGB(155, 130, 255)
 DirectionSelector.Font = Enum.Font.GothamBold
@@ -224,7 +230,7 @@ DirectionSelector.TextSize = 10
 DirectionSelector.LayoutOrder = 8
 Instance.new("UICorner", DirectionSelector).CornerRadius = UDim.new(0, 5)
 local selectorStroke = Instance.new("UIStroke", DirectionSelector)
-selectorStroke.Color = Color3.fromRGB(50, 50, 65)
+selectorStroke.Color = Color3.fromRGB(55, 55, 70)
 
 DirectionSelector.Activated:Connect(function()
     if Config.CurrentDirection == "Right" then
@@ -242,7 +248,7 @@ appendFunctionalToggle("Auto Loop Steal", "AutoLoopSteal", 11)
 appendFunctionalToggle("Auto Engage Bat", "AutoBat", 12)
 appendFunctionalToggle("Infinite Jump", "InfiniteJump", 13)
 
--- [[ HARDCORE PERFORMANCE ALIGNED MOVEMENT MOTOR ]] --
+-- [[ HIGH STABILITY ENGINE LOOPS ]] --
 RunService.Heartbeat:Connect(function(deltaTime)
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
@@ -264,7 +270,7 @@ RunService.Heartbeat:Connect(function(deltaTime)
     end
 end)
 
--- [[ COMBAT CHASE MODULE ]] --
+-- Combat Tracker Process Handler Thread
 task.spawn(function()
     while true do
         local deltaTime = task.wait(0.015)
@@ -299,17 +305,11 @@ task.spawn(function()
     end
 end)
 
--- Infinite Jumping Engine Hook
+-- Infinite Jump Request Event Wire
 UIS.JumpRequest:Connect(function()
     if Config.InfiniteJump and Humanoid and Humanoid.Health > 0 then
         Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
-LocalPlayer.CharacterAdded:Connect(function(newChar)
-    Character = newChar
-    Humanoid = newChar:WaitForChild("Humanoid")
-    RootPart = newChar:WaitForChild("HumanoidRootPart")
-end)
-
-print("Lunar Hub | Undetected V1 Mainframe Deployed Successfully!")
+print("Lunar Hub | Undetected V1 Has Deployed Safely from GitHub Core!")
