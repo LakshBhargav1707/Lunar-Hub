@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - V21.0 Hardcore Safe & Clean Master ]] --
+-- [[ Lunar Hub | V22.0 Hyper-Response Mobile Native Edition ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -16,22 +16,20 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Purge Old Interfaces to prevent overlap logs
+-- Hard Reset: Sab kuch pehle clear karo taaki lag ya hang na ho
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
 end)
 
--- [[ SETUP SAFE CONFIGURATION ]] --
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 32, -- Lowered to legal high-ping thresholds
-    AfterGrabSpeed = 34,  
+    BeforeGrabSpeed = 32, 
+    AfterGrabSpeed = 35,  
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
-    AutoBat = false,
-    InfiniteJump = false
+    AutoBat = false
 }
 
 local function checkBrainrot()
@@ -42,7 +40,7 @@ local function checkBrainrot()
     return false
 end
 
--- Server-Side Invisible Steal Grabber
+-- Native Interaction Module
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
@@ -61,7 +59,7 @@ local function autoGrabLogic()
     end
 end
 
--- [[ COMPACT MOBILE CONTROLS ]] --
+-- [[ FLOATING MOBILE BUTTONS — NEVER FREEZES ]] --
 local MobileGui = Instance.new("ScreenGui")
 MobileGui.Name = "LunarMobileUI"
 MobileGui.Parent = TargetGuiParent
@@ -69,220 +67,96 @@ MobileGui.ResetOnSpawn = false
 MobileGui.DisplayOrder = 99999
 
 local Layout = Instance.new("Frame", MobileGui)
-Layout.Size = UDim2.new(0, 180, 0, 40)
-Layout.Position = UDim2.new(0, 15, 0, 140)
+Layout.Size = UDim2.new(0, 200, 0, 50)
+Layout.Position = UDim2.new(0, 10, 0, 150) -- Perfect screen alignment for mobile
 Layout.BackgroundTransparency = 1
-
-local function createMiniControlBtn(text, order)
-    local btn = Instance.new("TextButton", Layout)
-    btn.Size = UDim2.new(0, 52, 0, 32)
-    btn.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
-    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn.Font = Enum.Font.GothamBold
-    btn.Text = text
-    btn.TextSize = 11
-    btn.LayoutOrder = order
-    btn.Active = true
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
-    Instance.new("UIStroke", btn).Color = Color3.fromRGB(50, 50, 60)
-    return btn
-end
 
 local UIList = Instance.new("UIListLayout", Layout)
 UIList.FillDirection = Enum.FillDirection.Horizontal
 UIList.SortOrder = Enum.SortOrder.LayoutOrder
-UIList.Padding = UDim.new(0, 8)
+UIList.Padding = UDim.new(0, 10)
 
-local MiniToggle = createMiniControlBtn("|||", 1)
-local MiniBat = createMiniControlBtn("BAT", 2)
-local MiniPlay = createMiniControlBtn("RIGHT", 3) 
-MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
-
--- [[ MAIN UI WINDOW ]] --
-local MainGui = Instance.new("ScreenGui")
-MainGui.Name = "LunarHub"
-MainGui.Parent = TargetGuiParent
-MainGui.ResetOnSpawn = false
-MainGui.DisplayOrder = 99998
-
-local MainFrame = Instance.new("Frame", MainGui)
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 230, 0, 350) 
-MainFrame.Position = UDim2.new(0.5, -115, 0.5, -175)
-MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
-MainFrame.Active = true
-MainFrame.Draggable = true 
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 9)
-Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(115, 90, 230)
-
-local HeaderFrame = Instance.new("Frame", MainFrame)
-HeaderFrame.Size = UDim2.new(1, 0, 0, 32)
-HeaderFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-Instance.new("UICorner", HeaderFrame).CornerRadius = UDim.new(0, 9)
-
-local MainTitle = Instance.new("TextLabel", HeaderFrame)
-MainTitle.Size = UDim2.new(1, 0, 1, 0)
-MainTitle.BackgroundTransparency = 1
-MainTitle.Text = "Lunar Hub | Ultra Safe V21" 
-MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
-MainTitle.Font = Enum.Font.GothamBold
-MainTitle.TextSize = 11
-
-local Container = Instance.new("Frame", MainFrame)
-Container.Size = UDim2.new(1, -20, 1, -42)
-Container.Position = UDim2.new(0, 10, 0, 38)
-Container.BackgroundTransparency = 1
-
-local UIListLayout = Instance.new("UIListLayout", Container)
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 4)
-
-MiniToggle.Activated:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
-
-local function createUIElementLabel(text, order)
-    local lbl = Instance.new("TextLabel", Container)
-    lbl.Size = UDim2.new(1, 0, 0, 13)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = text:upper()
-    lbl.TextColor3 = Color3.fromRGB(140, 140, 150)
-    lbl.Font = Enum.Font.GothamBold
-    lbl.TextSize = 9
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.LayoutOrder = order
-    return lbl
+local function createPerfectButton(text, bgColor, order)
+    local btn = Instance.new("TextButton", Layout)
+    btn.Size = UDim2.new(0, 60, 0, 38)
+    btn.BackgroundColor3 = bgColor
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = text
+    btn.TextSize = 10
+    btn.LayoutOrder = order
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Transparency = 0.6
+    return btn
 end
 
-local function createTextBoxInput(default, configKey, order)
-    local box = Instance.new("TextBox", Container)
-    box.Size = UDim2.new(1, 0, 0, 24)
-    box.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    box.PlaceholderText = default
-    box.Text = default
-    box.Font = Enum.Font.GothamSemibold
-    box.TextSize = 11
-    box.LayoutOrder = order
-    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 5)
-    Instance.new("UIStroke", box).Color = Color3.fromRGB(50, 50, 65)
-    
-    box.FocusLost:Connect(function()
-        local val = tonumber(box.Text)
-        if val then 
-            if val > 50 then val = 50 box.Text = "50" end 
-            Config[configKey] = val 
-        end
-    end)
-    return box
-end
+local BtnSteal = createPerfectButton("STEAL: OFF", Color3.fromRGB(40, 40, 50), 1)
+local BtnBat = createPerfectButton("BAT: OFF", Color3.fromRGB(40, 40, 50), 2)
+local BtnPlay = createPerfectButton("START (R)", Color3.fromRGB(115, 90, 230), 3)
 
-createUIElementLabel("Normal Walking Speed", 1)
-createTextBoxInput("16", "NormalSpeed", 2)
-
-createUIElementLabel("Before Grab Speed (Chasing)", 3)
-createTextBoxInput("32", "BeforeGrabSpeed", 4)
-
-createUIElementLabel("After Grab Speed (Sweeping)", 5)
-createTextBoxInput("34", "AfterGrabSpeed", 6)
-
-createUIElementLabel("Autoplay Side Configuration", 7)
-
-local InsideSideBtn = Instance.new("TextButton", Container)
-InsideSideBtn.Size = UDim2.new(1, 0, 0, 24)
-InsideSideBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-InsideSideBtn.Text = "DEFAULT SIDE: RIGHT"
-InsideSideBtn.Font = Enum.Font.GothamBold
-InsideSideBtn.TextColor3 = Color3.fromRGB(170, 85, 255)
-InsideSideBtn.TextSize = 10
-InsideSideBtn.LayoutOrder = 8
-InsideSideBtn.Active = true
-Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
-local strokeBtn = Instance.new("UIStroke", InsideSideBtn)
-strokeBtn.Color = Color3.fromRGB(50, 50, 65)
-
-local function refreshOutsideAutoplayVisuals()
-    if Config.AutoplayActive then
-        MiniPlay.Text = "X (STOP)"
-        MiniPlay.BackgroundColor3 = Color3.fromRGB(200, 80, 80)
+-- Interaction Listeners
+BtnSteal.Activated:Connect(function()
+    Config.AutoLoopSteal = not Config.AutoLoopSteal
+    if Config.AutoLoopSteal then
+        BtnSteal.Text = "STEAL: ON"
+        BtnSteal.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
     else
-        MiniPlay.Text = Config.CurrentDirection:upper()
-        MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+        BtnSteal.Text = "STEAL: OFF"
+        BtnSteal.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
     end
-end
+end)
 
-InsideSideBtn.Activated:Connect(function()
-    if Config.CurrentDirection == "Right" then
+BtnBat.Activated:Connect(function()
+    Config.AutoBat = not Config.AutoBat
+    if Config.AutoBat then
+        BtnBat.Text = "BAT: ON"
+        BtnBat.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+    else
+        BtnBat.Text = "BAT: OFF"
+        BtnBat.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    end
+end)
+
+BtnPlay.Activated:Connect(function()
+    if not Config.AutoplayActive and Config.CurrentDirection == "Right" then
+        Config.AutoplayActive = true
+        Config.CurrentDirection = "Right"
+        BtnPlay.Text = "STOP"
+        BtnPlay.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
+    elseif Config.AutoplayActive and Config.CurrentDirection == "Right" then
         Config.CurrentDirection = "Left"
-        InsideSideBtn.Text = "DEFAULT SIDE: LEFT"
+        BtnPlay.Text = "START (L)"
+        Config.AutoplayActive = false
+        BtnPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
+    elseif not Config.AutoplayActive and Config.CurrentDirection == "Left" then
+        Config.AutoplayActive = true
+        Config.CurrentDirection = "Left"
+        BtnPlay.Text = "STOP"
+        BtnPlay.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
     else
         Config.CurrentDirection = "Right"
-        InsideSideBtn.Text = "DEFAULT SIDE: RIGHT"
+        BtnPlay.Text = "START (R)"
+        Config.AutoplayActive = false
+        BtnPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
     end
-    refreshOutsideAutoplayVisuals()
 end)
 
-MiniPlay.Activated:Connect(function()
-    Config.AutoplayActive = not Config.AutoplayActive
-    refreshOutsideAutoplayVisuals()
-end)
-
-MiniBat.Activated:Connect(function()
-    Config.AutoBat = not Config.AutoBat
-    MiniBat.BackgroundColor3 = Config.AutoBat and Color3.fromRGB(200, 80, 80) or Color3.fromRGB(24, 24, 28)
-end)
-
-createUIElementLabel("Features Toggle Panel", 9)
-
-local function createMainPanelToggle(name, configKey, order)
-    local frameBtn = Instance.new("TextButton", Container)
-    frameBtn.Size = UDim2.new(1, 0, 0, 25)
-    frameBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-    frameBtn.Text = "  " .. name .. ": OFF"
-    frameBtn.Font = Enum.Font.GothamBold
-    frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
-    frameBtn.TextXAlignment = Enum.TextXAlignment.Left
-    frameBtn.TextSize = 10
-    frameBtn.LayoutOrder = order
-    frameBtn.Active = true
-    Instance.new("UICorner", frameBtn).CornerRadius = UDim.new(0, 5)
-    Instance.new("UIStroke", frameBtn).Color = Color3.fromRGB(50, 50, 65)
-
-    frameBtn.Activated:Connect(function()
-        Config[configKey] = not Config[configKey]
-        if Config[configKey] then
-            frameBtn.Text = "  " .. name .. ": ON"
-            frameBtn.TextColor3 = Color3.fromRGB(80, 200, 80)
-        else
-            frameBtn.Text = "  " .. name .. ": OFF"
-            frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
-        end
-    end)
-end
-
-createMainPanelToggle("Auto Loop Steal", "AutoLoopSteal", 10)
-createMainPanelToggle("Infinite Jump", "InfiniteJump", 11)
-
--- [[ 100% LEGITIMATE PLAYER MOVEMENT EXECUTION ]] --
+-- [[ ZERO-LAG LEGIT PLAYER STEP SIMULATION ]] --
 RunService.PreRender:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        -- Setup dynamic fallback speeds
-        local activeTargetSpeed = Config.NormalSpeed
+        local targetWalkSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
-            activeTargetSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+            targetWalkSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
         end
 
         if Config.AutoplayActive and not Config.AutoBat then
-            Humanoid.WalkSpeed = activeTargetSpeed
-            
-            -- Pure Humanoid native navigation translation (Zero physics alerts)
-            local moveVector = Vector3.new(0, 0, 0)
-            if Config.CurrentDirection == "Left" then
-                moveVector = Vector3.new(-1, 0, 0)
-            elseif Config.CurrentDirection == "Right" then
-                moveVector = Vector3.new(1, 0, 0)
-            end
-            Humanoid:Move(moveVector, true)
+            Humanoid.WalkSpeed = targetWalkSpeed
+            local vectorMove = (Config.CurrentDirection == "Right") and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
+            Humanoid:Move(vectorMove, true)
         else
             if not Config.AutoBat then
                 Humanoid.WalkSpeed = Config.NormalSpeed
@@ -291,7 +165,7 @@ RunService.PreRender:Connect(function()
     end
 end)
 
--- [[ LEGIT COMPLIANT AUTOBAT SIMULATOR ]] --
+-- [[ ULTRA SAFE BAT TARGET ENGAGEMENT ]] --
 task.spawn(function()
     while true do
         task.wait(0.015)
@@ -310,16 +184,11 @@ task.spawn(function()
             end
 
             if targetEnemy then
-                -- Safely look at target without structural network warping
-                local trackingPos = Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z)
-                RootPart.CFrame = CFrame.lookAt(RootPart.Position, trackingPos)
+                local positionCorrection = Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z)
+                RootPart.CFrame = CFrame.lookAt(RootPart.Position, positionCorrection)
                 
-                local currentBatSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
-                Humanoid.WalkSpeed = currentBatSpeed
-
-                -- Safe vector mapping
-                local relativeDirection = (targetEnemy.Position - RootPart.Position).Unit
-                Humanoid:Move(relativeDirection, false)
+                Humanoid.WalkSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+                Humanoid:Move((targetEnemy.Position - RootPart.Position).Unit, false)
 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
@@ -333,18 +202,10 @@ task.spawn(function()
     end
 end)
 
--- Setup clean humanoid adjustments on rebirth/respawn
 LocalPlayer.CharacterAdded:Connect(function(newChar)
     Character = newChar
     Humanoid = newChar:WaitForChild("Humanoid")
     RootPart = newChar:WaitForChild("HumanoidRootPart")
 end)
 
--- Core Standard State Jump Modifier
-UIS.JumpRequest:Connect(function()
-    if Config.InfiniteJump and Humanoid and Humanoid.Health > 0 then
-        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-    end
-end)
-
-print("Lunar Hub | V21.0 Hardcore Anti-Ban Safe Sweeper Running!")
+print("Lunar Hub | V22.0 Native Touch Deployed Successfully!")
