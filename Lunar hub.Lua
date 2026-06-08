@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - V19.5 Ultimate Unified Edition ]] --
+-- [[ Lunar Hub | Undetected - V20.0 Anti-Ban Mirage Master ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -7,33 +7,27 @@ local CoreGui = game:GetService("CoreGui")
 local Lighting = game:GetService("Lighting")
 
 local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local RootPart = Character:WaitForChild("HumanoidRootPart")
+
 local TargetGuiParent = nil
 pcall(function()
     if CoreGui and type(CoreGui) == "userdata" then TargetGuiParent = CoreGui end
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Complete Clean Sweep of Previous UI Layers
+-- Clean up older setups
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
 end)
 
--- [[ CONFIGURATION SYSTEM ]] --
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
-local RootPart = Character:WaitForChild("HumanoidRootPart")
-
-LocalPlayer.CharacterAdded:Connect(function(newChar)
-    Character = newChar
-    Humanoid = newChar:WaitForChild("Humanoid")
-    RootPart = newChar:WaitForChild("HumanoidRootPart")
-end)
-
+-- [[ MASTER CONFIGURATION ]] --
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 36, 
-    AfterGrabSpeed = 38,  
+    BeforeGrabSpeed = 34, -- Ultra-safe threshold for legal move vectors
+    AfterGrabSpeed = 36,  
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
@@ -46,9 +40,10 @@ local OriginalLightingCache = {
     Ambient = Lighting.Ambient,
     OutdoorAmbient = Lighting.OutdoorAmbient,
     ClockTime = Lighting.ClockTime,
-    Brightness = Lighting.Brightness,
-    Exposure = Lighting.ExposureCompensation
+    Brightness = Lighting.Brightness
 }
+
+local HighlightStorage = {}
 
 local function checkBrainrot()
     if Character then
@@ -58,13 +53,13 @@ local function checkBrainrot()
     return false
 end
 
--- Anti-Cheat Proof Direct Grab Handler
+-- Completely Client-Side Injected Interaction Loop
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
             if obj:IsA("Tool") and (obj.Name:lower() == "brainrot" or obj:FindFirstChild("Handle")) then
                 local handle = obj:FindFirstChild("Handle") or obj
-                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 45 then
+                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 40 then
                     pcall(function()
                         firetouchinterest(handle, RootPart, 0)
                         firetouchinterest(handle, RootPart, 1)
@@ -114,7 +109,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ MAIN COMPACT INTERFACE (NO DISAPPEARING FIELDS) ]] --
+-- [[ CONTAINER MAIN PANEL ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -123,13 +118,13 @@ MainGui.DisplayOrder = 99998
 
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 230, 0, 390) -- Optimized size for all speed inputs
+MainFrame.Size = UDim2.new(0, 230, 0, 390) 
 MainFrame.Position = UDim2.new(0.5, -115, 0.5, -195)
 MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
 MainFrame.Active = true
 MainFrame.Draggable = true 
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 9)
-Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(60, 50, 100)
+Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(115, 90, 230)
 
 local HeaderFrame = Instance.new("Frame", MainFrame)
 HeaderFrame.Size = UDim2.new(1, 0, 0, 32)
@@ -139,7 +134,7 @@ Instance.new("UICorner", HeaderFrame).CornerRadius = UDim.new(0, 9)
 local MainTitle = Instance.new("TextLabel", HeaderFrame)
 MainTitle.Size = UDim2.new(1, 0, 1, 0)
 MainTitle.BackgroundTransparency = 1
-MainTitle.Text = "Lunar Hub | BAC Bypass v19" 
+MainTitle.Text = "Lunar Hub | Safe Mirage V20" 
 MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
 MainTitle.TextSize = 11
@@ -184,22 +179,21 @@ local function createTextBoxInput(default, configKey, order)
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 60 then val = 60 box.Text = "60" end 
+            if val > 55 then val = 55 box.Text = "55" end 
             Config[configKey] = val 
         end
     end)
     return box
 end
 
--- SPEED INPUTS FIXED IN LAYOUT
 createUIElementLabel("Normal Walking Speed", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
 
 createUIElementLabel("Before Grab Speed (Chasing)", 3)
-createTextBoxInput("36", "BeforeGrabSpeed", 4)
+createTextBoxInput("34", "BeforeGrabSpeed", 4)
 
 createUIElementLabel("After Grab Speed (Sweeping)", 5)
-createTextBoxInput("38", "AfterGrabSpeed", 6)
+createTextBoxInput("36", "AfterGrabSpeed", 6)
 
 createUIElementLabel("Autoplay Side Configuration", 7)
 
@@ -213,7 +207,8 @@ InsideSideBtn.TextSize = 10
 InsideSideBtn.LayoutOrder = 8
 InsideSideBtn.Active = true
 Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
-Instance.new("UIStroke", InsideSideBtn).Color = Color3.fromRGB(50, 50, 65)
+InsideSideBtn.UIStroke = Instance.new("UIStroke", InsideSideBtn)
+InsideSideBtn.UIStroke.Color = Color3.fromRGB(50, 50, 65)
 
 local function refreshOutsideAutoplayVisuals()
     if Config.AutoplayActive then
@@ -279,71 +274,83 @@ end
 createMainPanelToggle("Auto Loop Steal", "AutoLoopSteal", 10)
 createMainPanelToggle("Infinite Jump", "InfiniteJump", 11)
 
--- [[ TACTICAL HIGH-CONTRAST NIGHTVISION & CLEAN X-RAY ]] --
+-- [[ HIGHLIGHT X-RAY & TRUE NIGHTVISION LOOP ]] --
+local function applyTargetHighlight(instance, coreColor)
+    if not instance:FindFirstChildOfClass("Highlight") then
+        local hl = Instance.new("Highlight")
+        hl.FillColor = coreColor
+        hl.FillTransparency = 0.45
+        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+        hl.OutlineTransparency = 0.1
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        hl.Parent = instance
+        table.insert(HighlightStorage, hl)
+    end
+end
+
 createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     if state then
-        -- Pure Midnight Lighting Boost
-        Lighting.Ambient = Color3.fromRGB(15, 15, 25)
-        Lighting.OutdoorAmbient = Color3.fromRGB(10, 10, 15)
+        -- Safe Midnight Contrast (Zero exposure distortion)
+        Lighting.Ambient = Color3.fromRGB(10, 10, 18)
+        Lighting.OutdoorAmbient = Color3.fromRGB(5, 5, 8)
         Lighting.ClockTime = 0
         Lighting.Brightness = 0
-        Lighting.ExposureCompensation = 3.8
 
         task.spawn(function()
             while Config.NightVision do
-                for _, part in pairs(Workspace:GetDescendants()) do
-                    if part:IsA("BasePart") and not part.Parent:FindFirstChildOfClass("Humanoid") and part.Name ~= "Terrain" then
-                        local pName = part.Parent.Name:lower()
-                        local name = part.Name:lower()
-                        
-                        -- Bypass foliage/trees layout for clean base visibility
-                        if not pName:find("tree") and not name:find("leaf") and not name:find("leaves") and not pName:find("foliage") and not name:find("branch") and not pName:find("bush") and not name:find("grass") then
-                            if not part:GetAttribute("OldTrans") then part:SetAttribute("OldTrans", part.Transparency) end
-                            part.Transparency = 0.78
-                        end
+                -- Clear Outlines on Bases & Brainrots through walls
+                for _, obj in pairs(Workspace:GetChildren()) do
+                    local name = obj.Name:lower()
+                    if obj:IsA("Model") and (name:find("base") or name:find("zone") or obj:FindFirstChild("Base")) then
+                        applyTargetHighlight(obj, Color3.fromRGB(115, 90, 230))
+                    elseif obj:IsA("Tool") and (name == "brainrot" or obj:FindFirstChild("Handle")) then
+                        applyTargetHighlight(obj, Color3.fromRGB(0, 255, 125))
+                    end
+                end
+                
+                -- Check inside other players bases
+                for _, folder in pairs(Workspace:GetDescendants()) do
+                    if folder:IsA("Folder") and folder.Name:lower():find("base") then
+                        applyTargetHighlight(folder, Color3.fromRGB(115, 90, 230))
                     end
                 end
                 task.wait(2)
             end
         end)
     else
-        -- Restore Original Settings smoothly
         Lighting.Ambient = OriginalLightingCache.Ambient
         Lighting.OutdoorAmbient = OriginalLightingCache.OutdoorAmbient
         Lighting.ClockTime = OriginalLightingCache.ClockTime
         Lighting.Brightness = OriginalLightingCache.Brightness
-        Lighting.ExposureCompensation = OriginalLightingCache.Exposure
 
-        for _, part in pairs(Workspace:GetDescendants()) do
-            if part:IsA("BasePart") and part:GetAttribute("OldTrans") then
-                part.Transparency = part:GetAttribute("OldTrans")
-                part:SetAttribute("OldTrans", nil)
-            end
+        for _, hl in pairs(HighlightStorage) do
+            if hl and hl.Parent then hl:Destroy() end
         end
+        HighlightStorage = {}
     end
 end)
 
--- [[ NON-PHYSICAL GHOST MOVEMENT ENGINE (ANTI-KICK OVERRIDE) ]] --
-RunService.Heartbeat:Connect(function(deltaTime)
+-- [[ LEGAL VECTOR HUMANIOID MOVEMENT CONTROLLER ]] --
+RunService.PreSimulation:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        local targetSpeed = Config.NormalSpeed
+        local liveSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
-            targetSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+            liveSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
         end
 
-        -- Ghost Frame Shift Position Manipulators
         if Config.AutoplayActive and not Config.AutoBat then
-            local directionVector = Vector3.new(0, 0, 0)
-            if Config.CurrentDirection == "Left" then
-                directionVector = RootPart.CFrame.RightVector * -targetSpeed
-            elseif Config.CurrentDirection == "Right" then
-                directionVector = RootPart.CFrame.RightVector * targetSpeed
-            end
+            Humanoid.WalkSpeed = liveSpeed
             
-            RootPart.CFrame = RootPart.CFrame + Vector3.new(directionVector.X * deltaTime, 0, directionVector.Z * deltaTime)
-            Humanoid.WalkSpeed = 0 
+            local directionMove = Vector3.new(0, 0, 0)
+            if Config.CurrentDirection == "Left" then
+                directionMove = RootPart.CFrame.RightVector * -1
+            elseif Config.CurrentDirection == "Right" then
+                directionMove = RootPart.CFrame.RightVector * 1
+            end
+            -- Direct Character State Machine Override (Anti-cheat safe)
+            Humanoid:Move(directionMove, false)
         else
             if not Config.AutoBat then
                 Humanoid.WalkSpeed = Config.NormalSpeed
@@ -352,10 +359,10 @@ RunService.Heartbeat:Connect(function(deltaTime)
     end
 end)
 
--- [[ SMOOTH LERP BAT OVERRIDE ]] --
+-- [[ ANTI-BAN AUTOBAT JOYSTICK TRANSLATOR ]] --
 task.spawn(function()
     while true do
-        local deltaTime = task.wait(0.012)
+        task.wait(0.01)
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
             local targetEnemy = nil
             local shortestDistance = math.huge
@@ -373,31 +380,36 @@ task.spawn(function()
             if targetEnemy then
                 RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
                 
-                local currentBatSpeed = Config.BeforeGrabSpeed
-                if checkBrainrot() then currentBatSpeed = Config.AfterGrabSpeed end
+                local currentBatSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+                Humanoid.WalkSpeed = currentBatSpeed
 
-                -- Velocity footprint translation block bypass
-                local heading = (targetEnemy.Position - RootPart.Position).Unit
-                RootPart.CFrame = RootPart.CFrame + Vector3.new(heading.X * currentBatSpeed * deltaTime, 0, heading.Z * currentBatSpeed * deltaTime)
-                Humanoid.WalkSpeed = 0
+                -- Safe simulated steering path
+                local lookHeading = (targetEnemy.Position - RootPart.Position).Unit
+                Humanoid:Move(lookHeading, false)
 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
                     pcall(function() weaponTool:Activate() end)
                 end
+            else
+                if not Config.AutoplayActive then Humanoid:Move(Vector3.new(0,0,0), false) end
             end
         end
     end
 end)
 
--- Non-Physics Infinite Jump
-local lastJumpAction = 0
+-- Standard Physics Infinite Jump
+LocalPlayer.CharacterAdded:Connect(function(newChar)
+    Character = newChar
+    Humanoid = newChar:WaitForChild("Humanoid")
+    RootPart = newChar:WaitForChild("HumanoidRootPart")
+end)
+
 UIS.JumpRequest:Connect(function()
-    if Config.InfiniteJump and RootPart and (tick() - lastJumpAction) > 0.15 then
-        lastJumpAction = tick()
-        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 4.5, 0)
+    if Config.InfiniteJump and Humanoid and Humanoid.Health > 0 then
+        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
-print("Lunar Hub | V19.5 Master Script Compiled Successfully!")
+print("Lunar Hub | V20.0 Mirage Script Deployed!")
