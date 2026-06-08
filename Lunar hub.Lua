@@ -1,4 +1,4 @@
--- [[ Lunar Hub | Undetected - Complete Override ]] --
+-- [[ Lunar Hub | Undetected - Enhanced Performance & UI Fix ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -32,8 +32,8 @@ end)
 
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 38, -- Fully optimized target speed
-    AfterGrabSpeed = 38,
+    BeforeGrabSpeed = 45, -- Speed boosted safely from 38 to 45
+    AfterGrabSpeed = 45,  -- Speed boosted safely from 38 to 45
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
@@ -121,7 +121,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ ULTRA MICRO INTERIOR MAIN PANEL ]] --
+-- [[ FIXED INTERIOR MAIN PANEL WITH SEAMLESS SCROLLING ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -129,8 +129,8 @@ MainGui.ResetOnSpawn = false
 
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 195, 0, 320) -- Slightly expanded height for inputs
-MainFrame.Position = UDim2.new(0.5, -97, 0.5, -160)
+MainFrame.Size = UDim2.new(0, 200, 0, 310)
+MainFrame.Position = UDim2.new(0.5, -100, 0.5, -155)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 Instance.new("UIStroke", MainFrame).Color = Color3.fromRGB(55, 45, 90)
@@ -156,15 +156,23 @@ ScrollFrame.Size = UDim2.new(1, 0, 1, -36)
 ScrollFrame.Position = UDim2.new(0, 0, 0, 34)
 ScrollFrame.BackgroundTransparency = 1
 ScrollFrame.ClipsDescendants = true
-ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 460) -- Added canvas space for inputs
-ScrollFrame.ScrollBarThickness = 2
+ScrollFrame.CanvasSize = UDim2.new(0, 0, 0, 410) -- Expanded canvas so inputs never disappear
+ScrollFrame.ScrollBarThickness = 3
 ScrollFrame.ScrollBarImageColor3 = Color3.fromRGB(115, 90, 230)
+
+local UIListLayout = Instance.new("UIListLayout", ScrollFrame)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+-- Padding object for clean alignment inside scroll
+local UIPadding = Instance.new("UIPadding", ScrollFrame)
+UIPadding.PaddingLeft = UDim.new(0, 10)
+UIPadding.PaddingTop = UDim.new(0, 8)
 
 MiniToggle.MouseButton1Click:Connect(function() MainFrame.Visible = not MainFrame.Visible end)
 
-local function createUIElementLabel(text, y)
+local function createUIElementLabel(text, order)
     local lbl = Instance.new("TextLabel", ScrollFrame)
-    lbl.Position = UDim2.new(0, 10, 0, y)
     lbl.Size = UDim2.new(0, 175, 0, 14)
     lbl.BackgroundTransparency = 1
     lbl.Text = text:upper()
@@ -172,12 +180,12 @@ local function createUIElementLabel(text, y)
     lbl.Font = Enum.Font.GothamBold
     lbl.TextSize = 9
     lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.LayoutOrder = order
     return lbl
 end
 
-local function createTextBoxInput(default, y, configKey)
+local function createTextBoxInput(default, configKey, order)
     local box = Instance.new("TextBox", ScrollFrame)
-    box.Position = UDim2.new(0, 10, 0, y)
     box.Size = UDim2.new(0, 175, 0, 24)
     box.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     box.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -185,40 +193,41 @@ local function createTextBoxInput(default, y, configKey)
     box.Text = default
     box.Font = Enum.Font.GothamSemibold
     box.TextSize = 11
+    box.LayoutOrder = order
     Instance.new("UICorner", box).CornerRadius = UDim.new(0, 5)
     Instance.new("UIStroke", box).Color = Color3.fromRGB(45, 45, 55)
     
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 38 then val = 38 box.Text = "38" end -- Strictly capped at 38 speed max to bypass reset triggers
+            if val > 60 then val = 60 box.Text = "60" end -- Absolute safety ceiling
             Config[configKey] = val 
         end
     end)
     return box
 end
 
--- WAPAS ADD KIYA GAYA SPEED CONFIGURATION CONTROLS
-createUIElementLabel("Speed Control", 10)
-createTextBoxInput("16", 26, "NormalSpeed")
+-- RENDER VISIBLE SPEED CONFIGURATIONS
+createUIElementLabel("Speed Control", 1)
+createTextBoxInput("16", "NormalSpeed", 2)
 
-createUIElementLabel("Before Grab Speed (Max 38)", 56)
-createTextBoxInput("38", 72, "BeforeGrabSpeed")
+createUIElementLabel("Before Grab Speed (Max 60)", 3)
+createTextBoxInput("45", "BeforeGrabSpeed", 4)
 
-createUIElementLabel("After Grab Speed (Max 38)", 102)
-createTextBoxInput("38", 118, "AfterGrabSpeed")
+createUIElementLabel("After Grab Speed (Max 60)", 5)
+createTextBoxInput("45", "AfterGrabSpeed", 6)
 
 -- DIRECTION SELECTION INSIDE THE PANEL
-createUIElementLabel("Set Autoplay Direction", 148)
+createUIElementLabel("Set Autoplay Direction", 7)
 
 local InsideSideBtn = Instance.new("TextButton", ScrollFrame)
 InsideSideBtn.Size = UDim2.new(0, 175, 0, 26)
-InsideSideBtn.Position = UDim2.new(0, 10, 0, 164)
 InsideSideBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
 InsideSideBtn.Text = "DEFAULT SIDE: RIGHT"
 InsideSideBtn.Font = Enum.Font.GothamBold
 InsideSideBtn.TextColor3 = Color3.fromRGB(170, 85, 255)
 InsideSideBtn.TextSize = 10
+InsideSideBtn.LayoutOrder = 8
 Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
 Instance.new("UIStroke", InsideSideBtn).Color = Color3.fromRGB(45, 45, 55)
 
@@ -259,18 +268,18 @@ MiniBat.MouseButton1Click:Connect(function()
     end
 end)
 
-createUIElementLabel("Features Toggle", 200)
+createUIElementLabel("Features Toggle", 9)
 
-local function createMainPanelToggle(name, y, configKey, callback)
+local function createMainPanelToggle(name, configKey, order, callback)
     local frameBtn = Instance.new("TextButton", ScrollFrame)
     frameBtn.Size = UDim2.new(0, 175, 0, 26)
-    frameBtn.Position = UDim2.new(0, 10, 0, y)
     frameBtn.BackgroundColor3 = Color3.fromRGB(24, 24, 30)
     frameBtn.Text = " " .. name .. ": OFF"
     frameBtn.Font = Enum.Font.GothamBold
     frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
     frameBtn.TextXAlignment = Enum.TextXAlignment.Left
     frameBtn.TextSize = 10
+    frameBtn.LayoutOrder = order
     Instance.new("UICorner", frameBtn).CornerRadius = UDim.new(0, 5)
     Instance.new("UIStroke", frameBtn).Color = Color3.fromRGB(45, 45, 55)
 
@@ -288,10 +297,10 @@ local function createMainPanelToggle(name, y, configKey, callback)
     end)
 end
 
-createMainPanelToggle("Auto Loop Steal", 218, "AutoLoopSteal")
-createMainPanelToggle("Infinite Jump", 248, "InfiniteJump")
+createMainPanelToggle("Auto Loop Steal", "AutoLoopSteal", 10)
+createMainPanelToggle("Infinite Jump", "InfiniteJump", 11)
 
-createMainPanelToggle("NightVision / X-Ray", 278, "NightVision", function(state)
+createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
     if state then
         Lighting.Ambient = Color3.fromRGB(255, 255, 255)
         Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
@@ -318,7 +327,7 @@ createMainPanelToggle("NightVision / X-Ray", 278, "NightVision", function(state)
     end
 end)
 
--- [[ PHYSICAL MOVEMENT ENGINE ]] --
+-- [[ PHYSICAL MOVEMENT ENGINE (STABILIZED BYPASS) ]] --
 local NetworkMoveVelocity = Instance.new("BodyVelocity")
 NetworkMoveVelocity.MaxForce = Vector3.new(250000, 0, 250000)
 NetworkMoveVelocity.Velocity = Vector3.new(0, 0, 0)
@@ -327,12 +336,11 @@ RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        -- Calculate active max speed dynamically based on configuration system inputs
+        -- Dynamic calculation from textbox inputs
         local movingSpeed = Config.NormalSpeed
-        if Config.AutoLoopSteal then
+        if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
             if checkBrainrot() then movingSpeed = Config.AfterGrabSpeed else movingSpeed = Config.BeforeGrabSpeed end
         end
-        if movingSpeed > 38 then movingSpeed = 38 end
 
         -- Autoplay translation mapping
         if Config.AutoplayActive and not Config.AutoBat then
@@ -361,7 +369,6 @@ task.spawn(function()
             local targetEnemy = nil
             local shortestDistance = math.huge
 
-            -- Scan nearest opponent on the map
             for _, player in pairs(Players:GetPlayers()) do
                 if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0 then
                     local dist = (RootPart.Position - player.Character.HumanoidRootPart.Position).Magnitude
@@ -373,19 +380,15 @@ task.spawn(function()
             end
 
             if targetEnemy then
-                -- Look at opponent
                 RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
                 
-                -- Dynamic 38 drift configuration input tracking
                 local dynamicSpeed = Config.BeforeGrabSpeed
                 if checkBrainrot() then dynamicSpeed = Config.AfterGrabSpeed end
-                if dynamicSpeed > 38 then dynamicSpeed = 38 end
 
                 if NetworkMoveVelocity.Parent ~= RootPart then NetworkMoveVelocity.Parent = RootPart end
                 local velocityVector = (targetEnemy.Position - RootPart.Position).Unit * dynamicSpeed
                 NetworkMoveVelocity.Velocity = Vector3.new(velocityVector.X, RootPart.Velocity.Y, velocityVector.Z)
 
-                -- Pull weapon tool & activate swing loop automatically 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
                     if weaponTool.Parent ~= Character then weaponTool.Parent = Character end
@@ -410,5 +413,4 @@ UIS.JumpRequest:Connect(function()
     end
 end)
 
-print("Lunar Hub | Undetected Restored & Ready!")
-
+print("Lunar Hub | Undetected Restructured & UI Fixed!")
