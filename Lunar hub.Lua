@@ -1,192 +1,211 @@
--- [[ LakshByte - Custom Brainrot Steal Hub UI Wrapper ]] --
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Rayfield/main/source"))()
+-- [[ Lunar Hub - Fully Functional & Working Script ]] --
 
-local Window = Library:CreateWindow({
-   Name = "Lunar Hub | Brainrot Edition",
-   LoadingTitle = "Loading System...",
-   LoadingSubtitle = "by LakshByte",
-   ConfigurationSaving = {
-      Enabled = false,
-      FolderName = "LunarHubConfig",
-      FileName = "BrainrotConfig"
-   }
-})
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-local MainTab = Window:CreateTab("Main Cheats", 4483362458)
+-- Puraane UI ko delete karne ke liye
+pcall(function()
+    game:GetService("CoreGui"):FindFirstChild("LunarHub"):Destroy()
+end)
 
--- [[ VARIABLES FOR LOGIC ]] --
-local Player = game.Players.LocalPlayer
-local Character = Player.Character or Player.CharacterAdded:Wait()
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LunarHub"
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ResetOnSpawn = false
+
+local Frame = Instance.new("Frame")
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 280, 0, 520) -- Size thoda badhaya adjust karne ke liye
+Frame.Position = UDim2.new(0.5, -140, 0.5, -260)
+Frame.BackgroundColor3 = Color3.fromRGB(18,18,24)
+Frame.BorderSizePixel = 0
+Frame.Active = true
+Frame.Draggable = true -- Isse tum panel ko mouse se pakad kar aage piche hila sakte ho
+
+Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,12)
+
+-- [[ VALUES & CONFIGURATION ]] --
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Character reset hone par variables auto-update honge
-Player.CharacterAdded:Connect(function(NewChar)
-    Character = NewChar
-    Humanoid = NewChar:WaitForChild("Humanoid")
-    RootPart = NewChar:WaitForChild("HumanoidRootPart")
+LocalPlayer.CharacterAdded:Connect(function(newChar)
+    Character = newChar
+    Humanoid = newChar:WaitForChild("Humanoid")
+    RootPart = newChar:WaitForChild("HumanoidRootPart")
 end)
 
 local Config = {
-    NormalSpeed = 32,
-    BeforeGrabSpeed = 30,
-    AfterGrabSpeed = 30,
-    SideSelection = "Left",
-    PlayMode = "Autoplay",
+    Speed = 32,
+    BeforeGrab = 30,
+    AfterGrab = 30,
+    Side = "Left", -- Default selection
+    Mode = "AutoPlay", -- Default mode
     AutoLoopSteal = false,
     AutoBat = false,
     InfiniteJump = false
 }
 
--- [[ 1. SPEED SECTION ]] --
-MainTab:CreateSection("Speed Modifiers")
+-- UI Helper Functions
+local function createLabel(text, y)
+    local lbl = Instance.new("TextLabel")
+    lbl.Parent = Frame
+    lbl.Position = UDim2.new(0,15,0,y)
+    lbl.Size = UDim2.new(0,120,0,30)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = text
+    lbl.TextColor3 = Color3.new(1,1,1)
+    lbl.Font = Enum.Font.GothamBold
+    lbl.TextSize = 15
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    return lbl
+end
 
-MainTab:CreateInput({
-   Name = "WalkSpeed (Type Number)",
-   PlaceholderText = "Default: 32",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-      local speed = tonumber(Text)
-      if speed and Humanoid then
-          Config.NormalSpeed = speed
-          Humanoid.WalkSpeed = speed
-      end
-   end,
-})
+local function createBox(default, y, configKey)
+    local box = Instance.new("TextBox")
+    box.Parent = Frame
+    box.Position = UDim2.new(0,150,0,y)
+    box.Size = UDim2.new(0,110,0,30)
+    box.BackgroundColor3 = Color3.fromRGB(30,30,40)
+    box.TextColor3 = Color3.new(1,1,1)
+    box.PlaceholderText = default
+    box.Text = default
+    box.Font = Enum.Font.Gotham
+    box.TextSize = 14
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
+    
+    -- TextBox badalne par speed update hogi
+    box.FocusLost:Connect(function()
+        local val = tonumber(box.Text)
+        if val then
+            Config[configKey] = val
+            if configKey == "Speed" and Humanoid then
+                Humanoid.WalkSpeed = val
+            end
+        end
+    end)
+    return box
+end
 
-MainTab:CreateInput({
-   Name = "Before Grab Speed",
-   PlaceholderText = "Default: 30",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-      local speed = tonumber(Text)
-      if speed then Config.BeforeGrabSpeed = speed end
-   end,
-})
+-- Title Setup
+local Title = createLabel("Lunar Hub", 10)
+Title.TextColor3 = Color3.fromRGB(170,85,255)
+Title.TextStrokeTransparency = 0
+Title.TextStrokeColor3 = Color3.new(0,0,0)
+Title.TextSize = 24
 
-MainTab:CreateInput({
-   Name = "After Grab Speed",
-   PlaceholderText = "Default: 30",
-   RemoveTextAfterFocusLost = false,
-   Callback = function(Text)
-      local speed = tonumber(Text)
-      if speed then Config.AfterGrabSpeed = speed end
-   end,
-})
+-- Minimize Logic
+local Minimize = Instance.new("TextButton")
+Minimize.Parent = Frame
+Minimize.Position = UDim2.new(1,-40,0,10)
+Minimize.Size = UDim2.new(0,30,0,30)
+Minimize.BackgroundTransparency = 1
+Minimize.Text = "-"
+Minimize.TextColor3 = Color3.new(1,1,1)
+Minimize.Font = Enum.Font.GothamBold
+Minimize.TextSize = 28
 
--- [[ 2. SIDE SELECTION & MODE ]] --
-MainTab:CreateSection("Side Selection & Mode")
+local Mini = Instance.new("TextButton")
+Mini.Parent = ScreenGui
+Mini.Size = UDim2.new(0,100,0,35)
+Mini.Position = UDim2.new(0,20,0.5,0)
+Mini.Visible = false
+Mini.BackgroundColor3 = Color3.fromRGB(18,18,24)
+Mini.Text = "Lunar Hub"
+Mini.TextColor3 = Color3.new(1,1,1)
+Mini.Font = Enum.Font.GothamBold
+Mini.TextSize = 16
+Instance.new("UICorner", Mini).CornerRadius = UDim.new(0,10)
 
-local SideBtn
-SideBtn = MainTab:CreateButton({
-   Name = "Side Selection: LEFT",
-   Callback = function()
-      if Config.SideSelection == "Left" then
-          Config.SideSelection = "Right"
-          SideBtn:Set("Side Selection: RIGHT")
-      else
-          Config.SideSelection = "Left"
-          SideBtn:Set("Side Selection: LEFT")
-      end
-   end,
-})
+Minimize.MouseButton1Click:Connect(function() Frame.Visible = false Mini.Visible = true end)
+Mini.MouseButton1Click:Connect(function() Frame.Visible = true Mini.Visible = false end)
 
-local ModeBtn
-ModeBtn = MainTab:CreateButton({
-   Name = "Mode: Autoplay",
-   Callback = function()
-      if Config.PlayMode == "Autoplay" then
-          Config.PlayMode = "Manual"
-          ModeBtn:Set("Mode: Manual")
-      else
-          Config.PlayMode = "Autoplay"
-          ModeBtn:Set("Mode: Autoplay")
-      end
-   end,
-})
+-- Inputs Creation
+createLabel("Speed", 70)
+createBox("32", 70, "Speed")
 
--- [[ 3. AUTOMATION LOOPS ]] --
-MainTab:CreateSection("Automation")
+createLabel("Before Grab", 115)
+createBox("30", 115, "BeforeGrab")
 
-MainTab:CreateToggle({
-   Name = "Auto Loop Steal",
-   CurrentValue = false,
-   Flag = "AutoSteal",
-   Callback = function(Value)
-      Config.AutoLoopSteal = Value
-      
-      task.spawn(function()
-          while Config.AutoLoopSteal do
-              if Character and Humanoid then
-                  -- Check tool named "Brainrot" or similar in Character
-                  local hasBrainrot = Character:FindFirstChild("Brainrot") or Player.Backpack:FindFirstChild("Brainrot")
-                  if hasBrainrot then
-                      Humanoid.WalkSpeed = Config.AfterGrabSpeed
-                  else
-                      Humanoid.WalkSpeed = Config.BeforeGrabSpeed
-                  end
-                  
-                  -- Autoplay corner movement logic
-                  if Config.PlayMode == "Autoplay" and RootPart then
-                      if Config.SideSelection == "Left" then
-                          -- Left movement action (Ya toh walk ya halka teleport)
-                          -- RootPart.CFrame = RootPart.CFrame * CFrame.new(-1, 0, 0)
-                       Rhineif Config.SideSelection == "Right" then
-                          -- Right movement action
-                          -- RootPart.CFrame = RootPart.CFrame * CFrame.new(1, 0, 0)
-                      end
-                  end
-              end
-              task.wait(0.1)
-          end
-      end)
-   end,
-})
+createLabel("After Grab", 160)
+createBox("30", 160, "AfterGrab")
 
-MainTab:CreateToggle({
-   Name = "Auto Bat (Hit Players)",
-   CurrentValue = false,
-   Flag = "AutoBat",
-   Callback = function(Value)
-      Config.AutoBat = Value
-      
-      task.spawn(function()
-          while Config.AutoBat do
-              if Character and RootPart then
-                  for _, player in pairs(game.Players:GetPlayers()) do
-                      if player ~= Player and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                          local targetRoot = player.Character.HumanoidRootPart
-                          local targetDist = (RootPart.Position - targetRoot.Position).Magnitude
-                          
-                          if targetDist < 15 then 
-                              local Tool = Character:FindFirstChildOfClass("Tool")
-                              if Tool then 
-                                  Tool:Activate() 
-                              end
-                          end
-                      end
-                  end
-              end
-              task.wait(0.2)
-          end
-      end)
-   end,
-})
+-- Side Selection Panel Setup
+createLabel("Side Selection", 205)
 
--- [[ 4. INFINITE JUMP ]] --
-MainTab:CreateSection("Movement Exploits")
+local Left = Instance.new("TextButton")
+Left.Parent = Frame
+Left.Position = UDim2.new(0,15,0,240)
+Left.Size = UDim2.new(0,110,0,35)
+Left.BackgroundColor3 = Color3.fromRGB(170,85,255) -- Highlighted left by default
+Left.TextColor3 = Color3.new(1,1,1)
+Left.Text = "Left"
+Left.Font = Enum.Font.GothamBold
+Instance.new("UICorner", Left).CornerRadius = UDim.new(0,8)
 
-MainTab:CreateToggle({
-   Name = "Infinite Jump",
-   CurrentValue = false,
-   Flag = "InfJump",
-   Callback = function(Value)
-      Config.InfiniteJump = Value
-   end,
-})
+local Right = Left:Clone()
+Right.Parent = Frame
+Right.Position = UDim2.new(0,150,0,240)
+Right.BackgroundColor3 = Color3.fromRGB(30,30,40)
+Right.Text = "Right"
 
-game:GetService("UserInputService").JumpRequest:Connect(function()
-    if Config.InfiniteJump and Humanoid then
-        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+-- Side Click Logic
+Left.MouseButton1Click:Connect(function()
+    Config.Side = "Left"
+    Left.BackgroundColor3 = Color3.fromRGB(170,85,255)
+    Right.BackgroundColor3 = Color3.fromRGB(30,30,40)
+end)
+
+Right.MouseButton1Click:Connect(function()
+    Config.Side = "Right"
+    Right.BackgroundColor3 = Color3.fromRGB(170,85,255)
+    Left.BackgroundColor3 = Color3.fromRGB(30,30,40)
+end)
+
+-- Mode Button Setup
+createLabel("Mode", 290)
+
+local Mode = Instance.new("TextButton")
+Mode.Parent = Frame
+Mode.Position = UDim2.new(0,150,0,290)
+Mode.Size = UDim2.new(0,110,0,35)
+Mode.BackgroundColor3 = Color3.fromRGB(30,30,40)
+Mode.TextColor3 = Color3.new(1,1,1)
+Mode.Font = Enum.Font.GothamBold
+Mode.Text = "AutoPlay"
+Instance.new("UICorner", Mode).CornerRadius = UDim.new(0,8)
+
+Mode.MouseButton1Click:Connect(function()
+    if Config.Mode == "AutoPlay" then
+        Config.Mode = "Manual"
+        Mode.Text = "Manual"
+    else
+        Config.Mode = "AutoPlay"
+        Mode.Text = "AutoPlay"
     end
 end)
+
+-- [[ GAME LOGIC FUNCTIONALITIES ]] --
+
+-- Helper function to check if character has brainrot tool
+local function checkBrainrot()
+    if Character then
+        return Character:FindFirstChild("Brainrot") or LocalPlayer.Backpack:FindFirstChild("Brainrot")
+    end
+    return false
+end
+
+local function createToggle(name, y, configKey)
+    createLabel(name, y)
+
+    local btn = Instance.new("TextButton")
+    btn.Parent = Frame
+    btn.Position = UDim2.new(0,150,0,y)
+    btn.Size = UDim2.new(0,110,0,35)
+    btn.BackgroundColor3 = Color3.fromRGB(200,50,50) -- Red for OFF
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    btn.Text = "OFF"
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(
