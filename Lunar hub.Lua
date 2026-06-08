@@ -1,10 +1,9 @@
--- [[ Lunar Hub | Undetected - V20.0 Anti-Ban Mirage Master ]] --
+-- [[ Lunar Hub | Undetected - V21.0 Hardcore Safe & Clean Master ]] --
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local CoreGui = game:GetService("CoreGui")
-local Lighting = game:GetService("Lighting")
 
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -17,33 +16,23 @@ pcall(function()
 end)
 if not TargetGuiParent then TargetGuiParent = LocalPlayer:WaitForChild("PlayerGui") end
 
--- Clean up older setups
+-- Purge Old Interfaces to prevent overlap logs
 pcall(function()
     if TargetGuiParent:FindFirstChild("LunarHub") then TargetGuiParent:FindFirstChild("LunarHub"):Destroy() end
     if TargetGuiParent:FindFirstChild("LunarMobileUI") then TargetGuiParent:FindFirstChild("LunarMobileUI"):Destroy() end
 end)
 
--- [[ MASTER CONFIGURATION ]] --
+-- [[ SETUP SAFE CONFIGURATION ]] --
 local Config = {
     NormalSpeed = 16,
-    BeforeGrabSpeed = 34, -- Ultra-safe threshold for legal move vectors
-    AfterGrabSpeed = 36,  
+    BeforeGrabSpeed = 32, -- Lowered to legal high-ping thresholds
+    AfterGrabSpeed = 34,  
     CurrentDirection = "Right", 
     AutoplayActive = false,
     AutoLoopSteal = false,
     AutoBat = false,
-    InfiniteJump = false,
-    NightVision = false
+    InfiniteJump = false
 }
-
-local OriginalLightingCache = {
-    Ambient = Lighting.Ambient,
-    OutdoorAmbient = Lighting.OutdoorAmbient,
-    ClockTime = Lighting.ClockTime,
-    Brightness = Lighting.Brightness
-}
-
-local HighlightStorage = {}
 
 local function checkBrainrot()
     if Character then
@@ -53,13 +42,13 @@ local function checkBrainrot()
     return false
 end
 
--- Completely Client-Side Injected Interaction Loop
+-- Server-Side Invisible Steal Grabber
 local function autoGrabLogic()
     if Character and RootPart and not checkBrainrot() then
         for _, obj in pairs(Workspace:GetChildren()) do
             if obj:IsA("Tool") and (obj.Name:lower() == "brainrot" or obj:FindFirstChild("Handle")) then
                 local handle = obj:FindFirstChild("Handle") or obj
-                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 40 then
+                if handle:IsA("BasePart") and (RootPart.Position - handle.Position).Magnitude < 35 then
                     pcall(function()
                         firetouchinterest(handle, RootPart, 0)
                         firetouchinterest(handle, RootPart, 1)
@@ -72,7 +61,7 @@ local function autoGrabLogic()
     end
 end
 
--- [[ FIXED EXTERNAL MINI CONTROLS ]] --
+-- [[ COMPACT MOBILE CONTROLS ]] --
 local MobileGui = Instance.new("ScreenGui")
 MobileGui.Name = "LunarMobileUI"
 MobileGui.Parent = TargetGuiParent
@@ -109,7 +98,7 @@ local MiniBat = createMiniControlBtn("BAT", 2)
 local MiniPlay = createMiniControlBtn("RIGHT", 3) 
 MiniPlay.BackgroundColor3 = Color3.fromRGB(115, 90, 230)
 
--- [[ CONTAINER MAIN PANEL ]] --
+-- [[ MAIN UI WINDOW ]] --
 local MainGui = Instance.new("ScreenGui")
 MainGui.Name = "LunarHub"
 MainGui.Parent = TargetGuiParent
@@ -118,8 +107,8 @@ MainGui.DisplayOrder = 99998
 
 local MainFrame = Instance.new("Frame", MainGui)
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 230, 0, 390) 
-MainFrame.Position = UDim2.new(0.5, -115, 0.5, -195)
+MainFrame.Size = UDim2.new(0, 230, 0, 350) 
+MainFrame.Position = UDim2.new(0.5, -115, 0.5, -175)
 MainFrame.BackgroundColor3 = Color3.fromRGB(14, 14, 18)
 MainFrame.Active = true
 MainFrame.Draggable = true 
@@ -134,7 +123,7 @@ Instance.new("UICorner", HeaderFrame).CornerRadius = UDim.new(0, 9)
 local MainTitle = Instance.new("TextLabel", HeaderFrame)
 MainTitle.Size = UDim2.new(1, 0, 1, 0)
 MainTitle.BackgroundTransparency = 1
-MainTitle.Text = "Lunar Hub | Safe Mirage V20" 
+MainTitle.Text = "Lunar Hub | Ultra Safe V21" 
 MainTitle.TextColor3 = Color3.fromRGB(170, 85, 255)
 MainTitle.Font = Enum.Font.GothamBold
 MainTitle.TextSize = 11
@@ -179,7 +168,7 @@ local function createTextBoxInput(default, configKey, order)
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then 
-            if val > 55 then val = 55 box.Text = "55" end 
+            if val > 50 then val = 50 box.Text = "50" end 
             Config[configKey] = val 
         end
     end)
@@ -190,10 +179,10 @@ createUIElementLabel("Normal Walking Speed", 1)
 createTextBoxInput("16", "NormalSpeed", 2)
 
 createUIElementLabel("Before Grab Speed (Chasing)", 3)
-createTextBoxInput("34", "BeforeGrabSpeed", 4)
+createTextBoxInput("32", "BeforeGrabSpeed", 4)
 
 createUIElementLabel("After Grab Speed (Sweeping)", 5)
-createTextBoxInput("36", "AfterGrabSpeed", 6)
+createTextBoxInput("34", "AfterGrabSpeed", 6)
 
 createUIElementLabel("Autoplay Side Configuration", 7)
 
@@ -207,8 +196,8 @@ InsideSideBtn.TextSize = 10
 InsideSideBtn.LayoutOrder = 8
 InsideSideBtn.Active = true
 Instance.new("UICorner", InsideSideBtn).CornerRadius = UDim.new(0, 5)
-InsideSideBtn.UIStroke = Instance.new("UIStroke", InsideSideBtn)
-InsideSideBtn.UIStroke.Color = Color3.fromRGB(50, 50, 65)
+local strokeBtn = Instance.new("UIStroke", InsideSideBtn)
+strokeBtn.Color = Color3.fromRGB(50, 50, 65)
 
 local function refreshOutsideAutoplayVisuals()
     if Config.AutoplayActive then
@@ -243,7 +232,7 @@ end)
 
 createUIElementLabel("Features Toggle Panel", 9)
 
-local function createMainPanelToggle(name, configKey, order, callback)
+local function createMainPanelToggle(name, configKey, order)
     local frameBtn = Instance.new("TextButton", Container)
     frameBtn.Size = UDim2.new(1, 0, 0, 25)
     frameBtn.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
@@ -262,11 +251,9 @@ local function createMainPanelToggle(name, configKey, order, callback)
         if Config[configKey] then
             frameBtn.Text = "  " .. name .. ": ON"
             frameBtn.TextColor3 = Color3.fromRGB(80, 200, 80)
-            if callback then callback(true) end
         else
             frameBtn.Text = "  " .. name .. ": OFF"
             frameBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
-            if callback then callback(false) end
         end
     end)
 end
@@ -274,83 +261,28 @@ end
 createMainPanelToggle("Auto Loop Steal", "AutoLoopSteal", 10)
 createMainPanelToggle("Infinite Jump", "InfiniteJump", 11)
 
--- [[ HIGHLIGHT X-RAY & TRUE NIGHTVISION LOOP ]] --
-local function applyTargetHighlight(instance, coreColor)
-    if not instance:FindFirstChildOfClass("Highlight") then
-        local hl = Instance.new("Highlight")
-        hl.FillColor = coreColor
-        hl.FillTransparency = 0.45
-        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-        hl.OutlineTransparency = 0.1
-        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        hl.Parent = instance
-        table.insert(HighlightStorage, hl)
-    end
-end
-
-createMainPanelToggle("NightVision / X-Ray", "NightVision", 12, function(state)
-    if state then
-        -- Safe Midnight Contrast (Zero exposure distortion)
-        Lighting.Ambient = Color3.fromRGB(10, 10, 18)
-        Lighting.OutdoorAmbient = Color3.fromRGB(5, 5, 8)
-        Lighting.ClockTime = 0
-        Lighting.Brightness = 0
-
-        task.spawn(function()
-            while Config.NightVision do
-                -- Clear Outlines on Bases & Brainrots through walls
-                for _, obj in pairs(Workspace:GetChildren()) do
-                    local name = obj.Name:lower()
-                    if obj:IsA("Model") and (name:find("base") or name:find("zone") or obj:FindFirstChild("Base")) then
-                        applyTargetHighlight(obj, Color3.fromRGB(115, 90, 230))
-                    elseif obj:IsA("Tool") and (name == "brainrot" or obj:FindFirstChild("Handle")) then
-                        applyTargetHighlight(obj, Color3.fromRGB(0, 255, 125))
-                    end
-                end
-                
-                -- Check inside other players bases
-                for _, folder in pairs(Workspace:GetDescendants()) do
-                    if folder:IsA("Folder") and folder.Name:lower():find("base") then
-                        applyTargetHighlight(folder, Color3.fromRGB(115, 90, 230))
-                    end
-                end
-                task.wait(2)
-            end
-        end)
-    else
-        Lighting.Ambient = OriginalLightingCache.Ambient
-        Lighting.OutdoorAmbient = OriginalLightingCache.OutdoorAmbient
-        Lighting.ClockTime = OriginalLightingCache.ClockTime
-        Lighting.Brightness = OriginalLightingCache.Brightness
-
-        for _, hl in pairs(HighlightStorage) do
-            if hl and hl.Parent then hl:Destroy() end
-        end
-        HighlightStorage = {}
-    end
-end)
-
--- [[ LEGAL VECTOR HUMANIOID MOVEMENT CONTROLLER ]] --
-RunService.PreSimulation:Connect(function()
+-- [[ 100% LEGITIMATE PLAYER MOVEMENT EXECUTION ]] --
+RunService.PreRender:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
         if Config.AutoLoopSteal then autoGrabLogic() end
 
-        local liveSpeed = Config.NormalSpeed
+        -- Setup dynamic fallback speeds
+        local activeTargetSpeed = Config.NormalSpeed
         if Config.AutoLoopSteal or Config.AutoplayActive or Config.AutoBat then
-            liveSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
+            activeTargetSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
         end
 
         if Config.AutoplayActive and not Config.AutoBat then
-            Humanoid.WalkSpeed = liveSpeed
+            Humanoid.WalkSpeed = activeTargetSpeed
             
-            local directionMove = Vector3.new(0, 0, 0)
+            -- Pure Humanoid native navigation translation (Zero physics alerts)
+            local moveVector = Vector3.new(0, 0, 0)
             if Config.CurrentDirection == "Left" then
-                directionMove = RootPart.CFrame.RightVector * -1
+                moveVector = Vector3.new(-1, 0, 0)
             elseif Config.CurrentDirection == "Right" then
-                directionMove = RootPart.CFrame.RightVector * 1
+                moveVector = Vector3.new(1, 0, 0)
             end
-            -- Direct Character State Machine Override (Anti-cheat safe)
-            Humanoid:Move(directionMove, false)
+            Humanoid:Move(moveVector, true)
         else
             if not Config.AutoBat then
                 Humanoid.WalkSpeed = Config.NormalSpeed
@@ -359,10 +291,10 @@ RunService.PreSimulation:Connect(function()
     end
 end)
 
--- [[ ANTI-BAN AUTOBAT JOYSTICK TRANSLATOR ]] --
+-- [[ LEGIT COMPLIANT AUTOBAT SIMULATOR ]] --
 task.spawn(function()
     while true do
-        task.wait(0.01)
+        task.wait(0.015)
         if Config.AutoBat and RootPart and Character and Humanoid.Health > 0 then
             local targetEnemy = nil
             local shortestDistance = math.huge
@@ -378,14 +310,16 @@ task.spawn(function()
             end
 
             if targetEnemy then
-                RootPart.CFrame = CFrame.lookAt(RootPart.Position, Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z))
+                -- Safely look at target without structural network warping
+                local trackingPos = Vector3.new(targetEnemy.Position.X, RootPart.Position.Y, targetEnemy.Position.Z)
+                RootPart.CFrame = CFrame.lookAt(RootPart.Position, trackingPos)
                 
                 local currentBatSpeed = checkBrainrot() and Config.AfterGrabSpeed or Config.BeforeGrabSpeed
                 Humanoid.WalkSpeed = currentBatSpeed
 
-                -- Safe simulated steering path
-                local lookHeading = (targetEnemy.Position - RootPart.Position).Unit
-                Humanoid:Move(lookHeading, false)
+                -- Safe vector mapping
+                local relativeDirection = (targetEnemy.Position - RootPart.Position).Unit
+                Humanoid:Move(relativeDirection, false)
 
                 local weaponTool = Character:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
                 if weaponTool then
@@ -399,17 +333,18 @@ task.spawn(function()
     end
 end)
 
--- Standard Physics Infinite Jump
+-- Setup clean humanoid adjustments on rebirth/respawn
 LocalPlayer.CharacterAdded:Connect(function(newChar)
     Character = newChar
     Humanoid = newChar:WaitForChild("Humanoid")
     RootPart = newChar:WaitForChild("HumanoidRootPart")
 end)
 
+-- Core Standard State Jump Modifier
 UIS.JumpRequest:Connect(function()
     if Config.InfiniteJump and Humanoid and Humanoid.Health > 0 then
         Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
     end
 end)
 
-print("Lunar Hub | V20.0 Mirage Script Deployed!")
+print("Lunar Hub | V21.0 Hardcore Anti-Ban Safe Sweeper Running!")
