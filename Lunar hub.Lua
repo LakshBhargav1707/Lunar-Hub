@@ -1,4 +1,4 @@
--- Lunar Hub (GUI + Fully Connected & Working Logic)
+-- Lunar Hub (GUI + Anti-Cheat Bypass Infinite Jump)
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 
@@ -18,11 +18,11 @@ Frame.Position = UDim2.new(0.5, -140, 0.5, -250)
 Frame.BackgroundColor3 = Color3.fromRGB(18,18,24)
 Frame.BorderSizePixel = 0
 Frame.Active = true
-Frame.Draggable = true -- Isse panel ko mouse/touch se hila sakte ho
+Frame.Draggable = true
 
 Instance.new("UICorner", Frame).CornerRadius = UDim.new(0,12)
 
--- [[ GAME BACKEND CONFIGURATION ]] --
+-- [[ CONFIGURATION VALUES ]] --
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
@@ -52,7 +52,6 @@ local function checkBrainrot()
     return false
 end
 
--- UI Helpers
 local function createLabel(text, y)
     local lbl = Instance.new("TextLabel")
     lbl.Parent = Frame
@@ -80,7 +79,6 @@ local function createBox(default, y, configKey)
     box.TextSize = 14
     Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
     
-    -- TextBox badalne par value save hogi aur update hogi
     box.FocusLost:Connect(function()
         local val = tonumber(box.Text)
         if val then
@@ -131,7 +129,6 @@ Mini.MouseButton1Click:Connect(function()
     Mini.Visible = false
 end)
 
--- Inputs Connected
 createLabel("Speed", 70)
 createBox("32", 70, "Speed")
 
@@ -147,7 +144,7 @@ local Left = Instance.new("TextButton")
 Left.Parent = Frame
 Left.Position = UDim2.new(0,15,0,245)
 Left.Size = UDim2.new(0,110,0,35)
-Left.BackgroundColor3 = Color3.fromRGB(170,85,255) -- Default Highlighted Left
+Left.BackgroundColor3 = Color3.fromRGB(170,85,255)
 Left.TextColor3 = Color3.new(1,1,1)
 Left.Font = Enum.Font.GothamBold
 Left.Text = "Left"
@@ -159,7 +156,6 @@ Right.Position = UDim2.new(0,150,0,245)
 Right.BackgroundColor3 = Color3.fromRGB(30,30,40)
 Right.Text = "Right"
 
--- Side Buttons Functional Logic
 Left.MouseButton1Click:Connect(function()
     Config.Side = "Left"
     Left.BackgroundColor3 = Color3.fromRGB(170,85,255)
@@ -194,7 +190,6 @@ Mode.MouseButton1Click:Connect(function()
     end
 end)
 
--- Toggle Function Connecting Logic
 local function createToggle(name, y, configKey)
     createLabel(name, y)
 
@@ -202,7 +197,7 @@ local function createToggle(name, y, configKey)
     btn.Parent = Frame
     btn.Position = UDim2.new(0,150,0,y)
     btn.Size = UDim2.new(0,110,0,35)
-    btn.BackgroundColor3 = Color3.fromRGB(200,50,50) -- Red for OFF
+    btn.BackgroundColor3 = Color3.fromRGB(200,50,50)
     btn.TextColor3 = Color3.new(1,1,1)
     btn.Font = Enum.Font.GothamBold
     btn.Text = "OFF"
@@ -211,11 +206,11 @@ local function createToggle(name, y, configKey)
     btn.MouseButton1Click:Connect(function()
         if btn.Text == "OFF" then
             btn.Text = "ON"
-            btn.BackgroundColor3 = Color3.fromRGB(50,200,50) -- Green for ON
+            btn.BackgroundColor3 = Color3.fromRGB(50,200,50)
             Config[configKey] = true
         else
             btn.Text = "OFF"
-            btn.BackgroundColor3 = Color3.fromRGB(200,50,50) -- Red for OFF
+            btn.BackgroundColor3 = Color3.fromRGB(200,50,50)
             Config[configKey] = false
         end
     end)
@@ -225,35 +220,29 @@ createToggle("Auto Loop Steal", 345, "AutoLoopSteal")
 createToggle("Auto Bat", 390, "AutoBat")
 createToggle("Infinite Jump", 435, "InfiniteJump")
 
--- [[ BACKGROUND WORKING LOOPS ]] --
+-- [[ FUNCTIONAL LOOPS ]] --
 
--- Loop 1: Auto Loop Steal, Before/After Grab Speed, Left/Right Movement
 task.spawn(function()
     while true do
         if Config.AutoLoopSteal and Humanoid and RootPart then
-            -- Speed controller based on grab state
             if checkBrainrot() then
                 Humanoid.WalkSpeed = Config.AfterGrab
             else
                 Humanoid.WalkSpeed = Config.BeforeGrab
             end
             
-            -- Side Selection character movement control
             if Config.Mode == "AutoPlay" then
                 if Config.Side == "Left" then
-                    -- Left direction drift/teleport effect
                     RootPart.CFrame = RootPart.CFrame * CFrame.new(-0.4, 0, 0)
                 elseif Config.Side == "Right" then
-                    -- Right direction drift/teleport effect
                     RootPart.CFrame = RootPart.CFrame * CFrame.new(0.4, 0, 0)
                 end
             end
         end
-        task.wait(0.03) -- Smooth response rate
+        task.wait(0.03)
     end
 end)
 
--- Loop 2: Auto Bat (Checks brainrot item, then hits nearest players)
 task.spawn(function()
     while true do
         if Config.AutoBat and checkBrainrot() and RootPart then
@@ -262,7 +251,7 @@ task.spawn(function()
                     local targetRoot = p.Character.HumanoidRootPart
                     local distance = (RootPart.Position - targetRoot.Position).Magnitude
                     
-                    if distance < 16 then -- Hits players within distance
+                    if distance < 16 then
                         local Tool = Character:FindFirstChildOfClass("Tool")
                         if Tool then 
                             Tool:Activate() 
@@ -275,11 +264,15 @@ task.spawn(function()
     end
 end)
 
--- Connection for Infinite Jump
+-- [[ BYPASS INFINITE JUMP LOGIC ]] --
+local lastJump = 0
 UIS.JumpRequest:Connect(function()
-    if Config.InfiniteJump and Humanoid then
-        Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+    -- Config.InfiniteJump ON hona chaiye, aur 0.08 seconds ka micro-delay taaki anti-cheat reset na kare
+    if Config.InfiniteJump and RootPart and (tick() - lastJump) > 0.08 then
+        lastJump = tick()
+        -- Velocity change karne ki jagah character ko CFrame se hawa me 5 studs upar boost karenge
+        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 5, 0)
     end
 end)
 
-print("Lunar Hub UI & All Buttons Fully Connected!")
+print("Lunar Hub UI & Anti-Cheat Bypass Infinite Jump Loaded!")
