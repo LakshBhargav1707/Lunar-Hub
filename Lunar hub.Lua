@@ -1,11 +1,13 @@
--- Lunar Hub (Steal A Brainrot Duel Edition)
+-- Lunar Hub (Steal A Brainrot Duel Edition - Fixed V5)
 local UIS = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 pcall(function()
-    game:GetService("CoreGui"):FindFirstChild("LunarHub"):Destroy()
+    if game:GetService("CoreGui"):FindFirstChild("LunarHub") then
+        game:GetService("CoreGui"):FindFirstChild("LunarHub"):Destroy()
+    end
 end)
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -38,8 +40,8 @@ end)
 
 local Config = {
     Speed = 32,
-    BeforeGrab = 45, -- Fast speed to reach the brainrot
-    AfterGrab = 35,  -- Safe deposit speed
+    BeforeGrab = 45,
+    AfterGrab = 35,
     Side = "Left",
     Mode = "AutoPlay",
     AutoLoopSteal = false,
@@ -56,18 +58,15 @@ local function checkBrainrot()
     return false
 end
 
--- [[ AUTO GRAB LOGIC FOR DUELS ]] --
+-- [[ AUTO GRAB LOGIC ]] --
 local function autoGrabBrainrots()
     if Character and RootPart and not checkBrainrot() then
-        -- Workspace me check karega jahan brainrots drop hote hain
-        -- Note: Agar tumhari game me folder ka naam alag h toh tum use change kar sakte ho
         for _, obj in pairs(Workspace:GetChildren()) do
             if obj:IsA("Tool") and (obj.Name:lower() == "brainrot" or obj:FindFirstChild("Handle")) then
                 local handle = obj:FindFirstChild("Handle") or obj
                 if handle:IsA("BasePart") then
                     local distance = (RootPart.Position - handle.Position).Magnitude
-                    if distance < 25 then -- 25 studs ki range me auto pickup
-                        -- Character ko brainrot ke paas hila kar touch karwayega
+                    if distance < 25 then
                         local savedCFrame = RootPart.CFrame
                         RootPart.CFrame = handle.CFrame
                         task.wait(0.05)
@@ -144,10 +143,17 @@ Mini.Font = Enum.Font.GothamBold
 Mini.TextSize = 16
 Instance.new("UICorner", Mini).CornerRadius = UDim.new(0,10)
 
-Minimize.MouseButton1Click:Connect(function() Frame.Visible = false Mini.Visible = true end)
-Mini.MouseButton1Click:Connect(function() Frame.Visible = true Mini.Visible = false end)
+Minimize.MouseButton1Click:Connect(function() 
+    Frame.Visible = false 
+    Mini.Visible = true 
+end)
 
--- Inputs Creation
+Mini.MouseButton1Click:Connect(function() 
+    Frame.Visible = true 
+    Mini.Visible = false 
+end)
+
+-- Inputs
 createLabel("Speed", 70)
 createBox("32", 70, "Speed")
 
@@ -240,24 +246,65 @@ createToggle("Auto Bat", 390, "AutoBat")
 createToggle("Infinite Jump", 435, "InfiniteJump")
 
 -- [[ ADVANCED BYPASS & AUTOMATION ]] --
-
 RunService.Heartbeat:Connect(function()
     if Character and Humanoid and RootPart and Humanoid.Health > 0 then
-        -- Auto Grab execute hoga agar toggle ON h
         if Config.AutoLoopSteal then
             autoGrabBrainrots()
         end
 
-        -- Target Speed handler
         local currentTargetSpeed = Config.Speed
         if Config.AutoLoopSteal then
             if checkBrainrot() then
-                currentTargetSpeed = Config.AfterGrab  -- Brainrot milne ke baad ki speed
+                currentTargetSpeed = Config.AfterGrab
             else
-                currentTargetSpeed = Config.BeforeGrab -- Brainrot lene jane ki fast speed
+                currentTargetSpeed = Config.BeforeGrab
             end
         end
 
-        -- Smooth CFrame Multiplier Method (Bypass system)
         if Humanoid.MoveDirection.Magnitude > 0 then
-            local
+            local speedMultiplier = (currentTargetSpeed / 16) - 1
+            if speedMultiplier > 0 then
+                RootPart.CFrame = RootPart.CFrame + (Humanoid.MoveDirection * (speedMultiplier * 0.14))
+            end
+        end
+
+        if Config.AutoLoopSteal and Config.Mode == "AutoPlay" then
+            if Config.Side == "Left" then
+                RootPart.CFrame = RootPart.CFrame * CFrame.new(-0.5, 0, 0)
+            elseif Config.Side == "Right" then
+                RootPart.CFrame = RootPart.CFrame * CFrame.new(0.5, 0, 0)
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while true do
+        if Config.AutoBat and checkBrainrot() and RootPart then
+            for _, p in pairs(Players:GetPlayers()) do
+                if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local targetRoot = p.Character.HumanoidRootPart
+                    local distance = (RootPart.Position - targetRoot.Position).Magnitude
+                    
+                    if distance < 16 then
+                        local Tool = Character:FindFirstChildOfClass("Tool")
+                        if Tool then 
+                            Tool:Activate() 
+                        end
+                    end
+                end
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+local lastJump = 0
+UIS.JumpRequest:Connect(function()
+    if Config.InfiniteJump and RootPart and (tick() - lastJump) > 0.08 then
+        lastJump = tick()
+        RootPart.CFrame = RootPart.CFrame * CFrame.new(0, 5, 0)
+    end
+end)
+
+print("Lunar Hub Fixed V5 Loaded!")
