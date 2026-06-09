@@ -217,8 +217,8 @@ local function CreateToggle(name,y)
 	end)
 end
 
-CreateToggle("B", 275)
-CreateToggle("A", 310)
+CreateToggle("INFINITE JUMP", 275)
+CreateToggle("AUTO STEAL", 310)
 
 -- Minimizing & Dragging code remains same...
 MenuBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
