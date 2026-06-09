@@ -89,7 +89,7 @@ local function CreateToggle(name, y)
     Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); Btn.Text = name.." : OFF"; Btn.TextColor3 = Color3.fromRGB(255, 50, 50); Btn.Font = Enum.Font.GothamBold; Instance.new("UICorner", Btn)
     Btn.MouseButton1Click:Connect(function() state = not state; Btn.Text = name..(state and " : ON" or " : OFF") end)
 end
-CreateToggle("B", 315); CreateToggle("A", 350)
+CreateToggle("INFINITE JUMP", 315); CreateToggle("AUTO GRAB", 350)
 
 --------------------------------------------------
 -- DRAG LOGIC
