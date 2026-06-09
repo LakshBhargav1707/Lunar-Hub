@@ -1,4 +1,4 @@
--- LUNAR HUB (Original UI Design - Fixed Logic)
+-- LUNAR HUB (Fixed Dragging Logic - Drag from TitleBar only)
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -54,8 +54,8 @@ Instance.new("UICorner",SideBtn)
 
 local Main = Instance.new("Frame")
 Main.Parent = ScreenGui
-Main.Size = UDim2.new(0,225,0,350) -- Thoda height kam kiya
-Main.Position = UDim2.new(0.5,-112,0.5,-175)
+Main.Size = UDim2.new(0,225,0,380)
+Main.Position = UDim2.new(0.5,-112,0.5,-190)
 Main.BackgroundColor3 = Color3.fromRGB(20,20,30)
 Main.BorderSizePixel = 0
 Instance.new("UICorner",Main)
@@ -68,6 +68,10 @@ Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 4
 Scroll.CanvasSize = UDim2.new(0,0,0,500)
 Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
+--------------------------------------------------
+-- TITLE BAR (FIXED: Dragging is limited here)
+--------------------------------------------------
 
 local TitleBar = Instance.new("Frame")
 TitleBar.Parent = Main
@@ -111,31 +115,20 @@ local function CreateBox(title,y,value)
 	Instance.new("UICorner",Box)
 end
 
-CreateBox("Speed Control",10,"0")
-CreateBox("Before Grab Speed",70,"38")
-CreateBox("After Grab Speed",130,"38")
+CreateBox("Speed Control",35,"0")
+CreateBox("Before Grab Speed",95,"38")
+CreateBox("After Grab Speed",155,"38")
 
 --------------------------------------------------
--- MODE BUTTONS (FIXED ALIGNMENT)
+-- MODE BUTTONS
 --------------------------------------------------
-
-local ModeLabel = Instance.new("TextLabel")
-ModeLabel.Parent = Scroll
-ModeLabel.Position = UDim2.new(0.05,0,0,185)
-ModeLabel.Size = UDim2.new(0.9,0,0,16)
-ModeLabel.BackgroundTransparency = 1
-ModeLabel.Text = "Autoplay Side Configuration"
-ModeLabel.TextColor3 = Color3.new(1,1,1)
-ModeLabel.TextXAlignment = Enum.TextXAlignment.Left
-ModeLabel.Font = Enum.Font.Gotham
-ModeLabel.TextSize = 11
 
 local LeftBtn = Instance.new("TextButton")
 local RightBtn = Instance.new("TextButton")
 local AutoGrabBtn = Instance.new("TextButton")
 
 local function StyleButton(btn)
-	btn.Parent = Scroll -- Scroll ke andar
+	btn.Parent = Scroll
 	btn.Size = UDim2.new(0,65,0,28)
 	btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
 	btn.TextColor3 = Color3.new(1,1,1)
@@ -148,15 +141,14 @@ StyleButton(LeftBtn)
 StyleButton(RightBtn)
 StyleButton(AutoGrabBtn)
 
-LeftBtn.Position = UDim2.new(0.03,0,0,210)
-RightBtn.Position = UDim2.new(0.35,0,0,210)
-AutoGrabBtn.Position = UDim2.new(0.67,0,0,210)
+LeftBtn.Position = UDim2.new(0.05,0,0,240)
+RightBtn.Position = UDim2.new(0.37,0,0,240)
+AutoGrabBtn.Position = UDim2.new(0.69,0,0,240)
 
 LeftBtn.Text = "LEFT"
 RightBtn.Text = "RIGHT"
 AutoGrabBtn.Text = "AUTO GRAB"
 
--- Logic
 LeftBtn.MouseButton1Click:Connect(function() SideBtn.Text = "LEFT" end)
 RightBtn.MouseButton1Click:Connect(function() SideBtn.Text = "RIGHT" end)
 
@@ -164,28 +156,17 @@ local isManual = false
 AutoGrabBtn.MouseButton1Click:Connect(function()
 	isManual = not isManual
 	AutoGrabBtn.Text = isManual and "MANUAL" or "AUTO GRAB"
-	AutoGrabBtn.BackgroundColor3 = isManual and Color3.fromRGB(200,50,50) or Color3.fromRGB(35,35,50)
+	AutoGrabBtn.BackgroundColor3 = isManual and Color3.fromRGB(130,70,255) or Color3.fromRGB(35,35,50)
 end)
 
 --------------------------------------------------
 -- TOGGLE PANEL
 --------------------------------------------------
 
-local ToggleLabel = Instance.new("TextLabel")
-ToggleLabel.Parent = Scroll
-ToggleLabel.Position = UDim2.new(0.05,0,0,250)
-ToggleLabel.Size = UDim2.new(0.9,0,0,16)
-ToggleLabel.BackgroundTransparency = 1
-ToggleLabel.Text = "Toggle Panel"
-ToggleLabel.TextColor3 = Color3.new(1,1,1)
-ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
-ToggleLabel.Font = Enum.Font.Gotham
-ToggleLabel.TextSize = 11
-
 local function CreateToggle(name,y)
 	local state = false
 	local Btn = Instance.new("TextButton")
-	Btn.Parent = Scroll -- Scroll ke andar
+	Btn.Parent = Scroll
 	Btn.Position = UDim2.new(0.05,0,0,y)
 	Btn.Size = UDim2.new(0.9,0,0,28)
 	Btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
@@ -202,24 +183,31 @@ local function CreateToggle(name,y)
 	end)
 end
 
-CreateToggle("B",275)
-CreateToggle("A",310)
+CreateToggle("INFINITE JUMP",305)
+CreateToggle("AUTO GRAB",340)
 
 --------------------------------------------------
--- DRAGGING & MINIMIZE
+-- MINIMIZE & FIXED DRAGGING (ONLY TITLEBAR)
 --------------------------------------------------
 MenuBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
 
 local dragging, dragStart, startPos
+-- Sirf TitleBar par hi click detect hoga
 TitleBar.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = true; dragStart = input.Position; startPos = Main.Position
 	end
 end)
+
 UIS.InputChanged:Connect(function(input)
 	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 		local delta = input.Position - dragStart
 		Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
 end)
-UIS.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
+	end
+end)
