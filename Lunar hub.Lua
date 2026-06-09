@@ -1,4 +1,4 @@
--- LUNAR HUB (Compact Floating Buttons & Fixed Logic)
+-- LUNAR HUB (Final Adjusted UI & Logic)
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -10,14 +10,14 @@ ScreenGui.Name = "LunarHub"
 ScreenGui.ResetOnSpawn = false
 
 --------------------------------------------------
--- COMPACT FLOATING BUTTONS (Container for alignment)
+-- COMPACT FLOATING BUTTONS (TOP ALIGNED)
 --------------------------------------------------
 local ButtonContainer = Instance.new("Frame", ScreenGui)
 ButtonContainer.Size = UDim2.new(0, 160, 0, 45)
-ButtonContainer.Position = UDim2.new(0, 10, 0.5, -22)
+ButtonContainer.Position = UDim2.new(0, 10, 0.4, 0) -- Thoda upar shift kiya
 ButtonContainer.BackgroundTransparency = 1
 
-local function CreateFloatingBtn(name, xOffset, text)
+local function CreateFloatingBtn(text, xOffset)
     local btn = Instance.new("TextButton", ButtonContainer)
     btn.Size = UDim2.new(0, 50, 0, 45)
     btn.Position = UDim2.new(0, xOffset, 0, 0)
@@ -30,9 +30,16 @@ local function CreateFloatingBtn(name, xOffset, text)
     return btn
 end
 
-local MenuBtn = CreateFloatingBtn("Menu", 0, "≡")
-local BatBtn = CreateFloatingBtn("Bat", 55, "BAT")
-local SideBtn = CreateFloatingBtn("Side", 110, "LEFT")
+local MenuBtn = CreateFloatingBtn("≡", 0)
+local BatBtn = CreateFloatingBtn("BAT", 55)
+local LeftBtn = CreateFloatingBtn("LEFT", 110)
+
+-- Bahar wale Left button ka logic
+local isLeft = true
+LeftBtn.MouseButton1Click:Connect(function()
+    isLeft = not isLeft
+    LeftBtn.Text = isLeft and "LEFT" or "X"
+end)
 
 --------------------------------------------------
 -- MAIN PANEL
@@ -64,61 +71,55 @@ Scroll.ScrollBarThickness = 4
 Scroll.CanvasSize = UDim2.new(0, 0, 0, 500)
 
 --------------------------------------------------
--- UI FUNCTIONS (Same Design)
+-- PANEL CONTENTS
 --------------------------------------------------
 local function CreateBox(title,y,value)
     local Label = Instance.new("TextLabel", Scroll)
     Label.Position = UDim2.new(0.05,0,0,y); Label.Size = UDim2.new(0.9,0,0,16)
-    Label.Text = title; Label.TextColor3 = Color3.new(1,1,1); Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Font = Enum.Font.Gotham; Label.TextSize = 11; Label.BackgroundTransparency = 1
+    Label.Text = title; Label.TextColor3 = Color3.new(1,1,1); Label.Font = Enum.Font.Gotham; Label.TextSize = 11; Label.BackgroundTransparency = 1
     local Box = Instance.new("TextBox", Scroll)
     Box.Position = UDim2.new(0.05,0,0,y+18); Box.Size = UDim2.new(0.9,0,0,28)
-    Box.Text = value; Box.BackgroundColor3 = Color3.fromRGB(35,35,50); Instance.new("UICorner", Box)
+    Box.Text = value; Box.BackgroundColor3 = Color3.fromRGB(35, 35, 50); Instance.new("UICorner", Box)
 end
 
 CreateBox("Speed Control", 35, "0")
 CreateBox("Before Grab Speed", 95, "38")
 CreateBox("After Grab Speed", 155, "38")
 
--- Mode Buttons
-local LeftBtn = Instance.new("TextButton", Scroll)
-local RightBtn = Instance.new("TextButton", Scroll)
+-- Mode Buttons inside Panel
 local AutoGrabBtn = Instance.new("TextButton", Scroll)
-
-local function StyleButton(btn, x, text)
-    btn.Size = UDim2.new(0,65,0,28); btn.Position = UDim2.new(x,0,0,240)
-    btn.Text = text; btn.BackgroundColor3 = Color3.fromRGB(35,35,50); Instance.new("UICorner", btn)
-end
-
-StyleButton(LeftBtn, 0.05, "LEFT")
-StyleButton(RightBtn, 0.37, "RIGHT")
-StyleButton(AutoGrabBtn, 0.69, "AUTO GRAB")
-
--- Logic for Left/X toggle
-local isLeft = true
-LeftBtn.MouseButton1Click:Connect(function()
-    isLeft = not isLeft
-    SideBtn.Text = isLeft and "LEFT" or "X"
-    LeftBtn.Text = isLeft and "LEFT" or "X"
-end)
-
-RightBtn.MouseButton1Click:Connect(function() SideBtn.Text = "RIGHT"; isLeft = false; LeftBtn.Text = "LEFT" end)
+AutoGrabBtn.Size = UDim2.new(0, 200, 0, 28); AutoGrabBtn.Position = UDim2.new(0.05, 0, 0, 240)
+AutoGrabBtn.Text = "AUTO GRAB"; AutoGrabBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 50); Instance.new("UICorner", AutoGrabBtn)
 
 AutoGrabBtn.MouseButton1Click:Connect(function()
     AutoGrabBtn.Text = (AutoGrabBtn.Text == "AUTO GRAB") and "MANUAL" or "AUTO GRAB"
-    AutoGrabBtn.BackgroundColor3 = (AutoGrabBtn.Text == "MANUAL") and Color3.fromRGB(130,70,255) or Color3.fromRGB(35,35,50)
+    AutoGrabBtn.BackgroundColor3 = (AutoGrabBtn.Text == "MANUAL") and Color3.fromRGB(130, 70, 255) or Color3.fromRGB(35, 35, 50)
 end)
 
+-- Toggles
+local function CreateToggle(name, y)
+    local state = false
+    local Btn = Instance.new("TextButton", Scroll)
+    Btn.Position = UDim2.new(0.05, 0, 0, y); Btn.Size = UDim2.new(0.9, 0, 0, 28)
+    Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 50); Btn.Text = name.." : OFF"; Instance.new("UICorner", Btn)
+    Btn.MouseButton1Click:Connect(function()
+        state = not state
+        Btn.Text = name..(state and " : ON" or " : OFF")
+        Btn.BackgroundColor3 = state and Color3.fromRGB(130, 70, 255) or Color3.fromRGB(35, 35, 50)
+    end)
+end
+
+CreateToggle("INFINITE JUMP", 280)
+CreateToggle("AUTO GRAB", 320)
+
 --------------------------------------------------
--- MINIMIZE & DRAGGING (TitleBar Only)
+-- DRAG & TOGGLE
 --------------------------------------------------
 MenuBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
 
 local dragging, dragStart, startPos
 TitleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true; dragStart = input.Position; startPos = Main.Position
-    end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true; dragStart = input.Position; startPos = Main.Position end
 end)
 UIS.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
