@@ -1,188 +1,61 @@
--- Lunar Hub | Undected
--- Visual UI Only (No Functional Buttons)
-
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-
-local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
-
-pcall(function()
-	if PlayerGui:FindFirstChild("LunarHubUI") then
-		PlayerGui.LunarHubUI:Destroy()
-	end
-end)
-
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "LunarHubUI"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = PlayerGui
+ScreenGui.Name = "LunarHub"
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
--- Main Panel
-local Main = Instance.new("Frame")
-Main.Parent = ScreenGui
-Main.Size = UDim2.new(0, 165, 0, 420)
-Main.Position = UDim2.new(0.5, -82, 0.5, -210)
-Main.BackgroundColor3 = Color3.fromRGB(15,15,20)
-Main.BorderSizePixel = 0
+-- 2 Second Delay before panel appears
+task.wait(2)
 
-Instance.new("UICorner", Main).CornerRadius = UDim.new(0,12)
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 250, 0, 350)
+frame.Position = UDim2.new(0.5, -125, 0.5, -175)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BackgroundTransparency = 0.1 -- Slight transparency for professional look
+frame.Parent = ScreenGui
 
-local Stroke = Instance.new("UIStroke")
-Stroke.Parent = Main
-Stroke.Color = Color3.fromRGB(255,255,255)
-Stroke.Thickness = 1
+-- Rounded corners for the main panel
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = frame
 
--- Title
-local Title = Instance.new("TextLabel")
-Title.Parent = Main
-Title.Size = UDim2.new(1,0,0,35)
-Title.BackgroundTransparency = 1
-Title.Text = "LUNAR HUB"
-Title.TextColor3 = Color3.new(1,1,1)
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 14
+-- Layout and Padding for organized buttons
+local uiLayout = Instance.new("UIListLayout")
+uiLayout.Padding = UDim.new(0, 8)
+uiLayout.Parent = frame
 
-local Sub = Instance.new("TextLabel")
-Sub.Parent = Main
-Sub.Position = UDim2.new(0,0,0,20)
-Sub.Size = UDim2.new(1,0,0,20)
-Sub.BackgroundTransparency = 1
-Sub.Text = "Undected"
-Sub.TextColor3 = Color3.fromRGB(170,170,170)
-Sub.Font = Enum.Font.Gotham
-Sub.TextSize = 10
+local uiPadding = Instance.new("UIPadding")
+uiPadding.PaddingTop = UDim.new(0, 10)
+uiPadding.PaddingLeft = UDim.new(0, 10)
+uiPadding.PaddingRight = UDim.new(0, 10)
+uiPadding.Parent = frame
 
--- Scroll
-local Scroll = Instance.new("ScrollingFrame")
-Scroll.Parent = Main
-Scroll.Position = UDim2.new(0,5,0,45)
-Scroll.Size = UDim2.new(1,-10,1,-50)
-Scroll.BackgroundTransparency = 1
-Scroll.BorderSizePixel = 0
-Scroll.ScrollBarThickness = 3
-Scroll.CanvasSize = UDim2.new(0,0,0,900)
-
-local Layout = Instance.new("UIListLayout")
-Layout.Parent = Scroll
-Layout.Padding = UDim.new(0,8)
-
-local function CreateButton(text, purple)
-	local Btn = Instance.new("TextButton")
-	Btn.Parent = Scroll
-	Btn.Size = UDim2.new(1,0,0,38)
-	Btn.Text = text
-	Btn.Font = Enum.Font.Gotham
-	Btn.TextSize = 11
-	Btn.TextColor3 = Color3.new(1,1,1)
-	Btn.BackgroundColor3 = purple and Color3.fromRGB(180,140,255) or Color3.fromRGB(20,20,25)
-	Btn.AutoButtonColor = false
-
-	Instance.new("UICorner", Btn).CornerRadius = UDim.new(0,8)
-
-	local S = Instance.new("UIStroke")
-	S.Parent = Btn
-	S.Color = Color3.fromRGB(255,255,255)
-	S.Thickness = 1
-
-	return Btn
+-- Professional Button Creator
+local function createButton(textName)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 45)
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    btn.Text = textName
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextSize = 16
+    btn.Parent = frame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 8)
+    btnCorner.Parent = btn
+    
+    -- Hover effect for professionalism
+    btn.MouseEnter:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    end)
+    btn.MouseLeave:Connect(function()
+        btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    end)
 end
 
-CreateButton("SPEED : 0")
-CreateButton("AUTO MEDUSA")
-CreateButton("FLIGHT MODE")
-CreateButton("INFINITE JUMP")
-CreateButton("OPTIMIZER")
-CreateButton("ANTI RAGDOLL")
-CreateButton("GALAXY SKY")
-CreateButton("UNWALK")
-CreateButton("FPS BOOST")
-CreateButton("AUTO FARM")
-CreateButton("AUTO GRAB")
-CreateButton("BUTTON VISIBILITY")
-CreateButton("SHOW UI")
-CreateButton("CUSTOM SPEED")
-CreateButton("PREDICT")
-CreateButton("LEFT", true)
-CreateButton("RIGHT")
-CreateButton("AUTO", true)
-
--- Left Floating Panel
-local Left = Instance.new("Frame")
-Left.Parent = ScreenGui
-Left.Size = UDim2.new(0,160,0,90)
-Left.Position = UDim2.new(0,20,0.25,0)
-Left.BackgroundTransparency = 1
-
-local function MiniButton(parent,text,x,y,w)
-	local B = Instance.new("TextButton")
-	B.Parent = parent
-	B.Size = UDim2.new(0,w or 40,0,30)
-	B.Position = UDim2.new(0,x,0,y)
-	B.Text = text
-	B.Font = Enum.Font.Gotham
-	B.TextSize = 11
-	B.TextColor3 = Color3.new(1,1,1)
-	B.BackgroundColor3 = Color3.fromRGB(20,20,25)
-
-	Instance.new("UICorner",B).CornerRadius = UDim.new(1,0)
-
-	local S = Instance.new("UIStroke")
-	S.Parent = B
-	S.Color = Color3.new(1,1,1)
-
-	return B
-end
-
-MiniButton(Left,"◼",0,0)
-MiniButton(Left,"≡",45,0)
-MiniButton(Left,"💬",90,0)
-MiniButton(Left,"⚙",135,0)
-
-MiniButton(Left,"II",0,40,35)
-MiniButton(Left,"BAT",40,40,50)
-MiniButton(Left,"LEFT",95,40,55)
-
--- Right Buttons
-local Right = Instance.new("Frame")
-Right.Parent = ScreenGui
-Right.Size = UDim2.new(0,60,0,120)
-Right.Position = UDim2.new(1,-90,0.35,0)
-Right.BackgroundTransparency = 1
-
-MiniButton(Right,"TP1",0,0,50)
-MiniButton(Right,"DROP",0,40,50)
-MiniButton(Right,"TP2",0,80,50)
-
--- Draggable
-local dragging = false
-local dragStart, startPos
-
-Main.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.Touch
-	or input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = Main.Position
-	end
-end)
-
-UIS.InputChanged:Connect(function(input)
-	if dragging and (input.UserInputType == Enum.UserInputType.Touch
-	or input.UserInputType == Enum.UserInputType.MouseMovement) then
-		local delta = input.Position - dragStart
-		Main.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-	end
-end)
-
-UIS.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.Touch
-	or input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
-	end
-end)
+-- Adding features
+createButton("Auto Medusa")
+createButton("Flight Mode")
+createButton("Infinite Jump")
+createButton("FPS Boost")
+createButton("Auto Bat")
