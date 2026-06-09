@@ -1,221 +1,133 @@
--- [[ LUNAR HUB - PROFESSIONAL UI ]] --
-
+-- LUNAR HUB - ADVANCED UI FRAMEWORK
 local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
+local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 local UserInputService = game:GetService("UserInputService")
 
--- 2 Second Delay before appearing
+-- 2 Second Delay Load
 task.wait(2)
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "LunarHub"
-ScreenGui.Parent = (gethui and gethui()) or CoreGui -- Anti-detection support
+ScreenGui.Parent = PlayerGui
 
--- Main UI Frame
+-- Main Panel
 local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0, 550, 0, 380)
-MainFrame.Position = UDim2.new(0.5, -275, 0.5, -190)
+MainFrame.Size = UDim2.new(0, 320, 0, 480) -- Matches width from your photo
+MainFrame.Position = UDim2.new(0.5, -160, 0.5, -240)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
 
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = MainFrame
+-- Title
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "LUNAR HUB"
+Title.Font = Enum.Font.GothamBold
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 18
+Title.BackgroundTransparency = 1
 
--- Sidebar (Left side icons)
-local Sidebar = Instance.new("Frame")
-Sidebar.Name = "Sidebar"
-Sidebar.Size = UDim2.new(0, 60, 1, 0)
-Sidebar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-Sidebar.BorderSizePixel = 0
-Sidebar.Parent = MainFrame
+-- Scrolling Content
+local Scroll = Instance.new("ScrollingFrame", MainFrame)
+Scroll.Size = UDim2.new(1, -20, 1, -40)
+Scroll.Position = UDim2.new(0, 10, 0, 35)
+Scroll.BackgroundTransparency = 1
+Scroll.ScrollBarThickness = 2
+Instance.new("UIListLayout", Scroll).Padding = UDim.new(0, 8)
 
-local SideCorner = Instance.new("UICorner")
-SideCorner.CornerRadius = UDim.new(0, 10)
-SideCorner.Parent = Sidebar
-
-local SideLayout = Instance.new("UIListLayout")
-SideLayout.Parent = Sidebar
-SideLayout.Padding = UDim.new(0, 15)
-SideLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-SideLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-
--- Header (Top Title)
-local Header = Instance.new("TextLabel")
-Header.Size = UDim2.new(1, -70, 0, 40)
-Header.Position = UDim2.new(0, 70, 0, 5)
-Header.BackgroundTransparency = 1
-Header.Text = "LUNAR HUB"
-Header.TextColor3 = Color3.fromRGB(200, 200, 200)
-Header.TextSize = 18
-Header.Font = Enum.Font.GothamBold
-Header.TextXAlignment = Enum.TextXAlignment.Left
-Header.Parent = MainFrame
-
--- Container for Content
-local ContentHolder = Instance.new("ScrollingFrame")
-ContentHolder.Name = "Content"
-ContentHolder.Size = UDim2.new(1, -80, 1, -60)
-ContentHolder.Position = UDim2.new(0, 70, 0, 50)
-ContentHolder.BackgroundTransparency = 1
-ContentHolder.ScrollBarThickness = 2
-ContentHolder.CanvasSize = UDim2.new(0, 0, 2, 0)
-ContentHolder.Parent = MainFrame
-
-local ContentLayout = Instance.new("UIListLayout")
-ContentLayout.Parent = ContentHolder
-ContentLayout.Padding = UDim.new(0, 10)
-
--- Helper Functions (Inputs, Sections, Buttons)
-
-local function CreateSection(title)
-    local Label = Instance.new("TextLabel")
-    Label.Size = UDim2.new(1, -10, 0, 25)
-    Label.BackgroundTransparency = 1
-    Label.Text = title:upper()
-    Label.TextColor3 = Color3.fromRGB(100, 100, 100)
-    Label.TextSize = 12
-    Label.Font = Enum.Font.GothamBold
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = ContentHolder
-end
-
-local function CreateInput(title, defaultText)
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, -10, 0, 40)
-    Container.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    Container.Parent = ContentHolder
-    Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 6)
-
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(0.6, 0, 1, 0)
-    Title.Position = UDim2.new(0, 10, 0, 0)
-    Title.BackgroundTransparency = 1
-    Title.Text = title:upper()
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextSize = 12
-    Title.Font = Enum.Font.GothamBold
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.Parent = Container
-
-    local Box = Instance.new("TextBox")
-    Box.Size = UDim2.new(0.3, 0, 0.7, 0)
-    Box.Position = UDim2.new(0.65, 0, 0.15, 0)
-    Box.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    Box.Text = defaultText
-    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Box.Font = Enum.Font.Gotham
-    Box.TextSize = 12
-    Box.Parent = Container
-    Instance.new("UICorner", Box).CornerRadius = UDim.new(0, 4)
-end
-
-local function CreateSelection()
-    local Container = Instance.new("Frame")
-    Container.Size = UDim2.new(1, -10, 0, 60)
-    Container.BackgroundTransparency = 1
-    Container.Parent = ContentHolder
-
-    local Title = Instance.new("TextLabel")
-    Title.Size = UDim2.new(1, 0, 0, 20)
-    Title.BackgroundTransparency = 1
-    Title.Text = "SIDE SELECTION & MODE"
-    Title.TextColor3 = Color3.fromRGB(150, 150, 150)
-    Title.TextSize = 11
-    Title.Font = Enum.Font.GothamBold
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.Parent = Container
-
-    local btnFrame = Instance.new("Frame")
-    btnFrame.Size = UDim2.new(1, 0, 0, 35)
-    btnFrame.Position = UDim2.new(0, 0, 0, 25)
-    btnFrame.BackgroundTransparency = 1
-    btnFrame.Parent = Container
-
-    local layout = Instance.new("UIListLayout")
-    layout.FillDirection = Enum.FillDirection.Horizontal
-    layout.Padding = UDim.new(0, 5)
-    layout.Parent = btnFrame
-
-    local function miniBtn(txt)
-        local b = Instance.new("TextButton")
-        b.Size = UDim2.new(0, 80, 1, 0)
-        b.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-        b.Text = txt
-        b.TextColor3 = Color3.fromRGB(255, 255, 255)
-        b.Font = Enum.Font.GothamBold
-        b.TextSize = 11
-        b.Parent = btnFrame
-        Instance.new("UICorner", b).CornerRadius = UDim.new(0, 5)
-    end
+-- Function to create Input Fields
+local function CreateInput(name, default)
+    local frame = Instance.new("Frame", Scroll)
+    frame.Size = UDim2.new(1, 0, 0, 50)
+    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 5)
     
-    miniBtn("LEFT")
-    miniBtn("RIGHT")
-    miniBtn("AUTO")
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(0.5, 0, 1, 0)
+    label.Text = "  " .. name
+    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.BackgroundTransparency = 1
+    
+    local box = Instance.new("TextBox", frame)
+    box.Size = UDim2.new(0.4, 0, 0.6, 0)
+    box.Position = UDim2.new(0.55, 0, 0.2, 0)
+    box.Text = default
+    box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Instance.new("UICorner", box)
 end
 
--- Adding Content Based on Video
-CreateSection("Speed Control")
-CreateInput("Speed", "0")
-CreateInput("Before Crab", "58")
-CreateInput("After Crab", "29")
+-- Function to create Mode Selectors (Left/Right/Auto)
+local function CreateModeSelector()
+    local frame = Instance.new("Frame", Scroll)
+    frame.Size = UDim2.new(1, 0, 0, 40)
+    frame.BackgroundTransparency = 1
+    
+    local options = {"LEFT", "RIGHT", "AUTO"}
+    for i, v in pairs(options) do
+        local btn = Instance.new("TextButton", frame)
+        btn.Size = UDim2.new(0.3, 0, 1, 0)
+        btn.Position = UDim2.new((i-1)*0.33, 0, 0, 0)
+        btn.Text = v
+        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        Instance.new("UICorner", btn)
+    end
+end
 
-CreateSection("Mytllock Settings")
-CreateInput("Mytllock Speed", "30")
-
-CreateSelection()
-
-CreateSection("Features")
+-- Function for Toggles (Features)
 local function CreateToggle(name)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, -10, 0, 40)
+    local btn = Instance.new("TextButton", Scroll)
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Text = name
     btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    btn.Text = "   " .. name:upper()
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 13
-    btn.TextXAlignment = Enum.TextXAlignment.Left
-    btn.Parent = ContentHolder
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", btn)
 end
 
-CreateToggle("Auto Medusa")
-CreateToggle("Flight Mode")
-CreateToggle("Infinite Jump")
+-- Initializing UI Elements
+CreateInput("SPEED", "0")
+CreateInput("BEFORE CRAB", "58")
+CreateInput("AFTER CRAB", "29")
+CreateInput("LAGGER COUNTER SPEED", "30")
+CreateModeSelector()
+CreateToggle("AUTO MEDUSA")
+CreateToggle("FLIGHT MODE")
+CreateToggle("INFINITE JUMP")
+CreateToggle("LOW GFX")
+CreateToggle("OPTIMIZER")
+CreateToggle("ANTI RAGDOLL")
+CreateToggle("GALAXY SKY")
+CreateToggle("UNWALK")
+CreateToggle("NO COLLISION")
+CreateToggle("FPS BOOST")
+CreateToggle("AUTO BAT")
+CreateToggle("LOOP AUTO STEAL")
+CreateToggle("PREDICT (BETA)")
 
--- Sidebar Icons (Placeholders)
-for i = 1, 4 do
-    local icon = Instance.new("Frame")
-    icon.Size = UDim2.new(0, 35, 0, 35)
-    icon.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    icon.Parent = Sidebar
-    Instance.new("UICorner", icon).CornerRadius = UDim.new(1, 0)
-end
+-- External Buttons logic (Reference to external GUI)
+local ExternalGui = Instance.new("ScreenGui", PlayerGui)
+local BatBtn = Instance.new("TextButton", ExternalGui)
+BatBtn.Position = UDim2.new(0, 10, 0.5, 0)
+BatBtn.Size = UDim2.new(0, 80, 0, 40)
+BatBtn.Text = "BAT"
 
--- Draggable Script (To move UI)
-local dragging, dragInput, dragStart, startPos
-local function update(input)
-    local delta = input.Position - dragStart
-    MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-end
+-- Draggable Logic
+local dragging, dragStart, startPos
 MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then dragging = false end
-        end)
     end
 end)
-MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
-end)
+
 UserInputService.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then update(input) end
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
 end)
 
-print("Lunar Hub Loaded!")
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
+end)
