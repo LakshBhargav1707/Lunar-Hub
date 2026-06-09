@@ -1,122 +1,297 @@
+-- LUNAR HUB (Generic Showcase UI)
+-- Visual Only
+
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
-local gui = Instance.new("ScreenGui")
-gui.Name = "LunarHub"
-gui.ResetOnSpawn = false
-gui.Parent = PlayerGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LunarHub"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = PlayerGui
 
-local main = Instance.new("Frame")
-main.Parent = gui
-main.Size = UDim2.new(0,220,0,300)
-main.Position = UDim2.new(0.5,-110,0.5,-150)
-main.BackgroundColor3 = Color3.fromRGB(22,22,32)
-Instance.new("UICorner", main)
+--------------------------------------------------
+-- FLOATING BUTTONS
+--------------------------------------------------
 
-local title = Instance.new("TextLabel")
-title.Parent = main
-title.Size = UDim2.new(1,0,0,28)
-title.BackgroundTransparency = 1
-title.Text = "LUNAR HUB"
-title.TextColor3 = Color3.fromRGB(170,85,255)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
+local MenuBtn = Instance.new("TextButton")
+MenuBtn.Parent = ScreenGui
+MenuBtn.Size = UDim2.new(0,45,0,45)
+MenuBtn.Position = UDim2.new(0,10,0.5,-60)
+MenuBtn.Text = "III"
+MenuBtn.TextSize = 18
+MenuBtn.Font = Enum.Font.GothamBold
+MenuBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+MenuBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner",MenuBtn)
 
-local function box(y, text, value)
-	local lbl = Instance.new("TextLabel")
-	lbl.Parent = main
-	lbl.Position = UDim2.new(0.05,0,0,y)
-	lbl.Size = UDim2.new(0.55,0,0,22)
-	lbl.BackgroundTransparency = 1
-	lbl.Text = text
-	lbl.TextColor3 = Color3.new(1,1,1)
-	lbl.Font = Enum.Font.Gotham
-	lbl.TextSize = 12
+local BatBtn = Instance.new("TextButton")
+BatBtn.Parent = ScreenGui
+BatBtn.Size = UDim2.new(0,45,0,45)
+BatBtn.Position = UDim2.new(0,10,0.5,-10)
+BatBtn.Text = "BAT"
+BatBtn.TextSize = 12
+BatBtn.Font = Enum.Font.GothamBold
+BatBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+BatBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner",BatBtn)
 
-	local tb = Instance.new("TextBox")
-	tb.Parent = main
-	tb.Position = UDim2.new(0.65,0,0,y)
-	tb.Size = UDim2.new(0.25,0,0,22)
-	tb.Text = value
-	tb.BackgroundColor3 = Color3.fromRGB(35,35,50)
-	tb.TextColor3 = Color3.new(1,1,1)
-	Instance.new("UICorner", tb)
+local SideBtn = Instance.new("TextButton")
+SideBtn.Parent = ScreenGui
+SideBtn.Size = UDim2.new(0,45,0,45)
+SideBtn.Position = UDim2.new(0,10,0.5,40)
+SideBtn.Text = "LEFT"
+SideBtn.TextSize = 12
+SideBtn.Font = Enum.Font.GothamBold
+SideBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+SideBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner",SideBtn)
+
+--------------------------------------------------
+-- MAIN PANEL
+--------------------------------------------------
+
+local Main = Instance.new("Frame")
+Main.Parent = ScreenGui
+Main.Size = UDim2.new(0,250,0,380)
+Main.Position = UDim2.new(0.5,-125,0.5,-190)
+Main.BackgroundColor3 = Color3.fromRGB(20,20,30)
+Main.BorderSizePixel = 0
+Instance.new("UICorner",Main)
+
+--------------------------------------------------
+-- TITLE BAR
+--------------------------------------------------
+
+local TitleBar = Instance.new("Frame")
+TitleBar.Parent = Main
+TitleBar.Size = UDim2.new(1,0,0,30)
+TitleBar.BackgroundTransparency = 1
+
+local Title = Instance.new("TextLabel")
+Title.Parent = TitleBar
+Title.Size = UDim2.new(1,0,1,0)
+Title.BackgroundTransparency = 1
+Title.Text = "LUNAR HUB"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+
+--------------------------------------------------
+-- TEXTBOX CREATOR
+--------------------------------------------------
+
+local function CreateBox(title,y,value)
+
+	local Label = Instance.new("TextLabel")
+	Label.Parent = Main
+	Label.Position = UDim2.new(0.05,0,0,y)
+	Label.Size = UDim2.new(0.9,0,0,16)
+	Label.BackgroundTransparency = 1
+	Label.Text = title
+	Label.TextColor3 = Color3.new(1,1,1)
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.Font = Enum.Font.Gotham
+	Label.TextSize = 11
+
+	local Box = Instance.new("TextBox")
+	Box.Parent = Main
+	Box.Position = UDim2.new(0.05,0,0,y+18)
+	Box.Size = UDim2.new(0.9,0,0,28)
+	Box.Text = value
+	Box.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	Box.TextColor3 = Color3.new(1,1,1)
+	Box.Font = Enum.Font.Gotham
+	Box.TextSize = 13
+	Instance.new("UICorner",Box)
+
 end
 
-box(35,"Speed","0")
-box(65,"Before Speed","38")
-box(95,"After Speed","38")
+CreateBox("Speed Control",35,"0")
+CreateBox("Before Grab Speed",95,"38")
+CreateBox("After Grab Speed",155,"38")
 
-local selected = nil
+--------------------------------------------------
+-- MODE LABEL
+--------------------------------------------------
 
-local function modeButton(name,x)
-	local b = Instance.new("TextButton")
-	b.Parent = main
-	b.Size = UDim2.new(0,60,0,25)
-	b.Position = UDim2.new(0,x,0,130)
-	b.Text = name
-	b.BackgroundColor3 = Color3.fromRGB(40,40,55)
-	b.TextColor3 = Color3.new(1,1,1)
-	Instance.new("UICorner", b)
+local ModeLabel = Instance.new("TextLabel")
+ModeLabel.Parent = Main
+ModeLabel.Position = UDim2.new(0.05,0,0,215)
+ModeLabel.Size = UDim2.new(0.9,0,0,16)
+ModeLabel.BackgroundTransparency = 1
+ModeLabel.Text = "Autoplay Side Configuration"
+ModeLabel.TextColor3 = Color3.new(1,1,1)
+ModeLabel.TextXAlignment = Enum.TextXAlignment.Left
+ModeLabel.Font = Enum.Font.Gotham
+ModeLabel.TextSize = 11
 
-	b.MouseButton1Click:Connect(function()
-		for _,v in pairs(main:GetChildren()) do
-			if v:IsA("TextButton") and (v.Text=="LEFT" or v.Text=="RIGHT" or v.Text=="MANUAL") then
-				v.BackgroundColor3 = Color3.fromRGB(40,40,55)
-			end
-		end
-		b.BackgroundColor3 = Color3.fromRGB(170,85,255)
-		selected = name
-	end)
+--------------------------------------------------
+-- MODE BUTTONS
+--------------------------------------------------
+
+local CurrentMode = "LEFT"
+
+local LeftBtn = Instance.new("TextButton")
+local RightBtn = Instance.new("TextButton")
+local AutoBtn = Instance.new("TextButton")
+
+local function StyleButton(btn)
+	btn.Parent = Main
+	btn.Size = UDim2.new(0,65,0,28)
+	btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	btn.TextColor3 = Color3.new(1,1,1)
+	btn.Font = Enum.Font.GothamBold
+	btn.TextSize = 11
+	Instance.new("UICorner",btn)
 end
 
-modeButton("LEFT",10)
-modeButton("RIGHT",80)
-modeButton("MANUAL",150)
+StyleButton(LeftBtn)
+StyleButton(RightBtn)
+StyleButton(AutoBtn)
 
-local function toggle(name,y)
+LeftBtn.Position = UDim2.new(0.05,0,0,240)
+RightBtn.Position = UDim2.new(0.37,0,0,240)
+AutoBtn.Position = UDim2.new(0.69,0,0,240)
+
+LeftBtn.Text = "LEFT"
+RightBtn.Text = "RIGHT"
+AutoBtn.Text = "AUTO"
+
+local function UpdateMode(mode)
+	CurrentMode = mode
+
+	LeftBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	RightBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	AutoBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+
+	if mode == "LEFT" then
+		LeftBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+	elseif mode == "RIGHT" then
+		RightBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+	else
+		AutoBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+	end
+
+	SideBtn.Text = mode
+end
+
+UpdateMode("LEFT")
+
+LeftBtn.MouseButton1Click:Connect(function()
+	UpdateMode("LEFT")
+end)
+
+RightBtn.MouseButton1Click:Connect(function()
+	UpdateMode("RIGHT")
+end)
+
+AutoBtn.MouseButton1Click:Connect(function()
+	UpdateMode("AUTO")
+end)
+
+--------------------------------------------------
+-- TOGGLE PANEL
+--------------------------------------------------
+
+local ToggleLabel = Instance.new("TextLabel")
+ToggleLabel.Parent = Main
+ToggleLabel.Position = UDim2.new(0.05,0,0,280)
+ToggleLabel.Size = UDim2.new(0.9,0,0,16)
+ToggleLabel.BackgroundTransparency = 1
+ToggleLabel.Text = "Toggle Panel"
+ToggleLabel.TextColor3 = Color3.new(1,1,1)
+ToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
+ToggleLabel.Font = Enum.Font.Gotham
+ToggleLabel.TextSize = 11
+
+local function CreateToggle(name,y)
+
 	local state = false
 
-	local b = Instance.new("TextButton")
-	b.Parent = main
-	b.Size = UDim2.new(0.9,0,0,28)
-	b.Position = UDim2.new(0.05,0,0,y)
-	b.BackgroundColor3 = Color3.fromRGB(35,35,50)
-	b.Text = name.." : OFF"
-	b.TextColor3 = Color3.new(1,1,1)
-	Instance.new("UICorner", b)
+	local Btn = Instance.new("TextButton")
+	Btn.Parent = Main
+	Btn.Position = UDim2.new(0.05,0,0,y)
+	Btn.Size = UDim2.new(0.9,0,0,28)
+	Btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+	Btn.Text = name.." : OFF"
+	Btn.TextColor3 = Color3.new(1,1,1)
+	Btn.Font = Enum.Font.GothamBold
+	Btn.TextSize = 11
+	Instance.new("UICorner",Btn)
 
-	b.MouseButton1Click:Connect(function()
+	Btn.MouseButton1Click:Connect(function()
+
 		state = not state
-		b.Text = name.." : "..(state and "ON" or "OFF")
-		b.BackgroundColor3 = state and Color3.fromRGB(170,85,255) or Color3.fromRGB(35,35,50)
+
+		if state then
+			Btn.Text = name.." : ON"
+			Btn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+		else
+			Btn.Text = name.." : OFF"
+			Btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
+		end
+
 	end)
+
 end
 
-toggle("Toggle A",170)
-toggle("Toggle B",205)
-toggle("Toggle C",240)
+CreateToggle("Infinite Jump",305)
+CreateToggle("Auto Loop Steal",340)
 
-local menu = Instance.new("TextButton")
-menu.Parent = gui
-menu.Size = UDim2.new(0,40,0,40)
-menu.Position = UDim2.new(0,10,0.5,-20)
-menu.Text = "☰"
-menu.BackgroundColor3 = Color3.fromRGB(170,85,255)
+--------------------------------------------------
+-- MINIMIZE
+--------------------------------------------------
 
-local side1 = Instance.new("TextButton")
-side1.Parent = gui
-side1.Size = UDim2.new(0,40,0,40)
-side1.Position = UDim2.new(0,10,0.5,30)
-side1.Text = "A"
+MenuBtn.MouseButton1Click:Connect(function()
+	Main.Visible = not Main.Visible
+end)
 
-local side2 = Instance.new("TextButton")
-side2.Parent = gui
-side2.Size = UDim2.new(0,40,0,40)
-side2.Position = UDim2.new(0,10,0.5,80)
-side2.Text = "B"
+--------------------------------------------------
+-- DRAG FROM TITLE ONLY
+--------------------------------------------------
 
-menu.MouseButton1Click:Connect(function()
-	main.Visible = not main.Visible
+local dragging = false
+local dragStart
+local startPos
+
+TitleBar.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+	or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = Main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+
+	end
+
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if dragging and (
+		input.UserInputType == Enum.UserInputType.MouseMovement
+		or input.UserInputType == Enum.UserInputType.Touch
+	) then
+
+		local delta = input.Position - dragStart
+
+		Main.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+
+	end
+
 end)
