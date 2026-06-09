@@ -1,133 +1,119 @@
--- LUNAR HUB - ADVANCED UI FRAMEWORK
+-- LUNAR HUB - EXACT LAYOUT REPLICA
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
-local UserInputService = game:GetService("UserInputService")
 
--- 2 Second Delay Load
-task.wait(2)
+task.wait(2) -- 2 second delay as requested
 
-local ScreenGui = Instance.new("ScreenGui")
+local ScreenGui = Instance.new("ScreenGui", PlayerGui)
 ScreenGui.Name = "LunarHub"
-ScreenGui.Parent = PlayerGui
 
--- Main Panel
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 320, 0, 480) -- Matches width from your photo
-MainFrame.Position = UDim2.new(0.5, -160, 0.5, -240)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Parent = ScreenGui
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 8)
+-- Main Panel (Static/Non-moveable)
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 360, 0, 520) -- Width adjusted to match photo
+MainFrame.Position = UDim2.new(0.5, -180, 0.5, -260)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+MainFrame.BorderSizePixel = 0
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
 
 -- Title
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Text = "LUNAR HUB"
-Title.Font = Enum.Font.GothamBold
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "REVUL HUB"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.TextSize = 18
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
 Title.BackgroundTransparency = 1
 
 -- Scrolling Content
 local Scroll = Instance.new("ScrollingFrame", MainFrame)
-Scroll.Size = UDim2.new(1, -20, 1, -40)
-Scroll.Position = UDim2.new(0, 10, 0, 35)
+Scroll.Size = UDim2.new(1, -10, 1, -50)
+Scroll.Position = UDim2.new(0, 5, 0, 45)
 Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 2
-Instance.new("UIListLayout", Scroll).Padding = UDim.new(0, 8)
+Instance.new("UIListLayout", Scroll).Padding = UDim.new(0, 10)
 
--- Function to create Input Fields
-local function CreateInput(name, default)
-    local frame = Instance.new("Frame", Scroll)
-    frame.Size = UDim2.new(1, 0, 0, 50)
-    frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 5)
-    
-    local label = Instance.new("TextLabel", frame)
-    label.Size = UDim2.new(0.5, 0, 1, 0)
-    label.Text = "  " .. name
-    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+-- Category/Section Header
+local function CreateCategory(text)
+    local label = Instance.new("TextLabel", Scroll)
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.Text = text
+    label.TextColor3 = Color3.fromRGB(150, 150, 150)
+    label.Font = Enum.Font.GothamBold
+    label.TextSize = 12
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.BackgroundTransparency = 1
-    
-    local box = Instance.new("TextBox", frame)
-    box.Size = UDim2.new(0.4, 0, 0.6, 0)
-    box.Position = UDim2.new(0.55, 0, 0.2, 0)
-    box.Text = default
-    box.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    Instance.new("UICorner", box)
 end
 
--- Function to create Mode Selectors (Left/Right/Auto)
-local function CreateModeSelector()
-    local frame = Instance.new("Frame", Scroll)
-    frame.Size = UDim2.new(1, 0, 0, 40)
-    frame.BackgroundTransparency = 1
-    
-    local options = {"LEFT", "RIGHT", "AUTO"}
-    for i, v in pairs(options) do
-        local btn = Instance.new("TextButton", frame)
-        btn.Size = UDim2.new(0.3, 0, 1, 0)
-        btn.Position = UDim2.new((i-1)*0.33, 0, 0, 0)
-        btn.Text = v
-        btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Instance.new("UICorner", btn)
-    end
-end
-
--- Function for Toggles (Features)
-local function CreateToggle(name)
+-- Input/Button Creation
+local function CreateField(name)
     local btn = Instance.new("TextButton", Scroll)
-    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Size = UDim2.new(1, 0, 0, 45)
     btn.Text = name
-    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Instance.new("UICorner", btn)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 13
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
 end
 
--- Initializing UI Elements
-CreateInput("SPEED", "0")
-CreateInput("BEFORE CRAB", "58")
-CreateInput("AFTER CRAB", "29")
-CreateInput("LAGGER COUNTER SPEED", "30")
-CreateModeSelector()
-CreateToggle("AUTO MEDUSA")
-CreateToggle("FLIGHT MODE")
-CreateToggle("INFINITE JUMP")
-CreateToggle("LOW GFX")
-CreateToggle("OPTIMIZER")
-CreateToggle("ANTI RAGDOLL")
-CreateToggle("GALAXY SKY")
-CreateToggle("UNWALK")
-CreateToggle("NO COLLISION")
-CreateToggle("FPS BOOST")
-CreateToggle("AUTO BAT")
-CreateToggle("LOOP AUTO STEAL")
-CreateToggle("PREDICT (BETA)")
+-- Layout based on your Screenshots
+CreateField("SPEED: 0")
+CreateCategory("SPEED CONTROL")
+CreateField("58")
+CreateField("29")
 
--- External Buttons logic (Reference to external GUI)
-local ExternalGui = Instance.new("ScreenGui", PlayerGui)
-local BatBtn = Instance.new("TextButton", ExternalGui)
-BatBtn.Position = UDim2.new(0, 10, 0.5, 0)
-BatBtn.Size = UDim2.new(0, 80, 0, 40)
-BatBtn.Text = "BAT"
+CreateCategory("BAT/LOCK SPEED")
+CreateField("30")
 
--- Draggable Logic
-local dragging, dragStart, startPos
-MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = MainFrame.Position
-    end
-end)
+CreateCategory("SIDE SELECTION & MODE")
+local ModeFrame = Instance.new("Frame", Scroll)
+ModeFrame.Size = UDim2.new(1, 0, 0, 40)
+ModeFrame.BackgroundTransparency = 1
+for _, v in pairs({"LEFT", "RIGHT", "AUTO"}) do
+    local b = Instance.new("TextButton", ModeFrame)
+    b.Size = UDim2.new(0.32, 0, 1, 0)
+    b.Position = UDim2.new((table.find({"LEFT", "RIGHT", "AUTO"}, v)-1)*0.33, 0, 0, 0)
+    b.Text = v
+    b.TextColor3 = Color3.fromRGB(255, 255, 255)
+    b.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    Instance.new("UICorner", b)
+end
 
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
+CreateCategory("FEATURES")
+CreateField("AUTO MEDUSA")
+CreateField("FLIGHT MODE")
+CreateField("INFINITE JUMP")
+CreateField("LOW GFX")
+CreateField("OPTIMIZER")
+CreateField("ANTI RAGDOLL")
+CreateField("GALAXY SKY")
+CreateField("UNWALK")
+CreateField("NO COLLISION")
+CreateField("FPS BOOST")
+CreateField("AUTO BAT")
+CreateField("LOOP AUTO STEAL")
+CreateField("PREDICT (BETA)")
 
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-end)
+CreateCategory("BUTTON VISIBILITY")
+CreateField("SHOW LOCK MEDUSA")
+CreateField("SHOW JUKE")
+CreateField("SHOW TP DOWN")
+CreateField("SHOW DESYNC")
+CreateField("SHOW AUTO TP")
+CreateField("SHOW TP UP")
+CreateField("SHOW SPEED BYPASS")
+CreateField("SHOW LAGGER COUNTER")
+
+CreateCategory("STEAL SETTINGS")
+CreateField("STEAL RADIUS (56-90)")
+CreateField("56")
+CreateField("FLIGHT HEIGHT")
+CreateField("6")
+
+CreateCategory("UI SETTINGS")
+CreateField("Unlock Buttons")
+CreateField("100")
+CreateCategory("SPEED CUSTOMIZER")
+CreateField("Enable Custom Speed")
+CreateField("40")
