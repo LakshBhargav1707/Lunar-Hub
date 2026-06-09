@@ -1,4 +1,4 @@
--- SHINARA HUB (Full Version)
+-- SHINARA HUB (Speed Boxes Restored)
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -72,7 +72,7 @@ LeftPBtn.Text = "LEFT"; LeftPBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); 
 local RightPBtn = Instance.new("TextButton", Scroll); RightPBtn.Size = UDim2.new(0, 95, 0, 28); RightPBtn.Position = UDim2.new(0.52, 0, 0, 210)
 RightPBtn.Text = "RIGHT"; RightPBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); RightPBtn.TextColor3 = Color3.fromRGB(255, 50, 50); RightPBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", RightPBtn)
 
--- Logic
+-- Logic for Side Change
 LeftPBtn.MouseButton1Click:Connect(function() LeftBtn.Text = "LEFT" end)
 RightPBtn.MouseButton1Click:Connect(function() LeftBtn.Text = "RIGHT" end)
 
@@ -82,13 +82,13 @@ AutoPlayBtn.MouseButton1Click:Connect(function() AutoPlayBtn.Text = (AutoPlayBtn
 
 -- Toggle Panel
 CreateCategory("Toggle Panel", 290)
-local function CreateToggle(name, text, y)
+local function CreateToggle(text, y)
     local state = false; local Btn = Instance.new("TextButton", Scroll); Btn.Position = UDim2.new(0.05, 0, 0, y); Btn.Size = UDim2.new(0.9, 0, 0, 28)
     Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); Btn.Text = text.." : OFF"; Btn.TextColor3 = Color3.fromRGB(255, 50, 50); Btn.Font = Enum.Font.GothamBold; Instance.new("UICorner", Btn)
     Btn.MouseButton1Click:Connect(function() state = not state; Btn.Text = text..(state and " : ON" or " : OFF") end)
 end
-CreateToggle("A", "INFINITE JUMP", 315)
-CreateToggle("B", "AUTO GRAB", 350)
+CreateToggle("INFINITE JUMP", 315)
+CreateToggle("AUTO GRAB", 350)
 
 --------------------------------------------------
 -- DRAG LOGIC
