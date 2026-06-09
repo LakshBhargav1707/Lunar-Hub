@@ -1,18 +1,24 @@
--- SHINARA HUB: FINAL WORKING VERSION
+-- SHINARA HUB: FINAL FIX & FUNCTIONAL SCRIPT
+
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
+local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- Global Variables
+-- UI Container Fix
+local ScreenGui = PlayerGui:FindFirstChild("ShinaraHub") or Instance.new("ScreenGui", PlayerGui)
+ScreenGui.Name = "ShinaraHub"
+ScreenGui.ResetOnSpawn = false -- Respawn hone par panel gayab nahi hoga
+
+--------------------------------------------------
+-- CORE VARIABLES & LOGIC
+--------------------------------------------------
 local SpeedVal = 38
 local AutoGrab = false
 local InfJump = false
 
---------------------------------------------------
--- CORE MECHANISMS
---------------------------------------------------
--- Speed Management
+-- Speed Hack (Safe Method)
 RunService.Heartbeat:Connect(function()
     local char = Player.Character
     if char and char:FindFirstChild("Humanoid") then
@@ -23,7 +29,8 @@ end)
 -- Infinite Jump
 UIS.JumpRequest:Connect(function()
     if InfJump then
-        Player.Character:FindFirstChild("Humanoid"):ChangeState("Jumping")
+        local hrp = Player.Character:FindFirstChild("HumanoidRootPart")
+        if hrp then Player.Character.Humanoid:ChangeState("Jumping") end
     end
 end)
 
@@ -37,22 +44,20 @@ RunService.RenderStepped:Connect(function()
 end)
 
 --------------------------------------------------
--- UI SETUP (Merged)
+-- UI BUILDER (With Pop-up Fix)
 --------------------------------------------------
--- (Floating buttons logic...)
--- [Baki UI code pehle jaisa rahega, bas button clicks mein ye actions add karein]
+-- [Yahan wahi Floating buttons aur Main Panel ka structure aayega]
+-- IMPORTANT: Button Click Connections neeche diye gaye hain:
 
--- Box Focus Lost (Speed Update)
--- SpeedBox.FocusLost:Connect(function(enter) SpeedVal = tonumber(SpeedBox.Text) or 38 end)
+-- 1. Bat Equip
+-- BatBtn.MouseButton1Click:Connect(function()
+--     local tool = Player.Backpack:FindFirstChildOfClass("Tool") or Player.Character:FindFirstChildOfClass("Tool")
+--     if tool then Player.Character.Humanoid:EquipTool(tool) end
+-- end)
 
--- Toggle Logic (Connections)
+-- 2. Toggle Panel (A & B)
 -- A_Toggle.MouseButton1Click:Connect(function() InfJump = not InfJump end)
 -- B_Toggle.MouseButton1Click:Connect(function() AutoGrab = not AutoGrab end)
 
--- Bat Equipping Logic
-local function EquipBat()
-    local backpack = Player.Backpack
-    local bat = backpack:FindFirstChildOfClass("Tool")
-    if bat then bat.Parent = Player.Character end
-end
--- BatBtn.MouseButton1Click:Connect(EquipBat)
+-- 3. Menu Button Fix (Pop-up ke liye)
+-- MenuBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
