@@ -1,4 +1,4 @@
--- SHINARA HUB (Full Features & Original Design Restored)
+-- SHINARA HUB (Centered Categories & Red/Black Theme)
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -45,7 +45,7 @@ local Scroll = Instance.new("ScrollingFrame", Main); Scroll.Position = UDim2.new
 Scroll.BackgroundTransparency = 1; Scroll.ScrollBarThickness = 4; Scroll.CanvasSize = UDim2.new(0,0,0,500)
 
 --------------------------------------------------
--- CONTENT WITH CATEGORIES
+-- CONTENT WITH CENTERED CATEGORIES
 --------------------------------------------------
 local function CreateBox(title,y,value)
     local Label = Instance.new("TextLabel", Scroll); Label.Position = UDim2.new(0.05,0,0,y); Label.Size = UDim2.new(0.9,0,0,16)
@@ -58,8 +58,20 @@ CreateBox("Speed Control", 10, "0")
 CreateBox("Before Grab Speed", 70, "38")
 CreateBox("After Grab Speed", 130, "38")
 
--- Category: Autoplay Side Configuration
-local ModeLabel = Instance.new("TextLabel", Scroll); ModeLabel.Position = UDim2.new(0.05,0,0,185); ModeLabel.Text = "Autoplay Side Configuration"; ModeLabel.TextColor3 = Color3.fromRGB(255, 50, 50); ModeLabel.Font = Enum.Font.Gotham; ModeLabel.TextSize = 11; ModeLabel.BackgroundTransparency = 1
+-- Category Label Function
+local function CreateCategory(text, y)
+    local Label = Instance.new("TextLabel", Scroll)
+    Label.Size = UDim2.new(1, 0, 0, 20)
+    Label.Position = UDim2.new(0, 0, 0, y)
+    Label.Text = text
+    Label.TextColor3 = Color3.fromRGB(255, 50, 50)
+    Label.Font = Enum.Font.GothamBold
+    Label.TextSize = 12
+    Label.BackgroundTransparency = 1
+    Label.TextXAlignment = Enum.TextXAlignment.Center -- Fixed: Centered
+end
+
+CreateCategory("Autoplay Side Configuration", 185)
 local AutoPlayBtn = Instance.new("TextButton", Scroll); AutoPlayBtn.Size = UDim2.new(0, 200, 0, 28); AutoPlayBtn.Position = UDim2.new(0.05, 0, 0, 210)
 AutoPlayBtn.Text = "AUTO PLAY"; AutoPlayBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); AutoPlayBtn.TextColor3 = Color3.fromRGB(255, 50, 50); AutoPlayBtn.Font = Enum.Font.GothamBold; Instance.new("UICorner", AutoPlayBtn)
 
@@ -67,8 +79,7 @@ AutoPlayBtn.MouseButton1Click:Connect(function()
     AutoPlayBtn.Text = (AutoPlayBtn.Text == "AUTO PLAY") and "MANUAL" or "AUTO PLAY"
 end)
 
--- Category: Toggle Panel
-local ToggleLabel = Instance.new("TextLabel", Scroll); ToggleLabel.Position = UDim2.new(0.05,0,0,250); ToggleLabel.Text = "Toggle Panel"; ToggleLabel.TextColor3 = Color3.fromRGB(255, 50, 50); ToggleLabel.Font = Enum.Font.Gotham; ToggleLabel.TextSize = 11; ToggleLabel.BackgroundTransparency = 1
+CreateCategory("Toggle Panel", 250)
 local function CreateToggle(name, y)
     local state = false; local Btn = Instance.new("TextButton", Scroll); Btn.Position = UDim2.new(0.05, 0, 0, y); Btn.Size = UDim2.new(0.9, 0, 0, 28)
     Btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35); Btn.Text = name.." : OFF"; Btn.TextColor3 = Color3.fromRGB(255, 50, 50); Btn.Font = Enum.Font.GothamBold; Instance.new("UICorner", Btn)
