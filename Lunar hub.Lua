@@ -19,9 +19,9 @@ ScreenGui.Parent = PlayerGui
 local MenuBtn = Instance.new("TextButton")
 MenuBtn.Parent = ScreenGui
 MenuBtn.Size = UDim2.new(0,45,0,45)
-MenuBtn.Position = UDim2.new(0,10,0.5,-60)
-MenuBtn.Text = "III"
-MenuBtn.TextSize = 18
+MenuBtn.Position = UDim2.new(0,10,0.5,-54)
+MenuBtn.Text = "≡"
+MenuBtn.TextSize = 10
 MenuBtn.Font = Enum.Font.GothamBold
 MenuBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
 MenuBtn.TextColor3 = Color3.new(1,1,1)
@@ -29,8 +29,8 @@ Instance.new("UICorner",MenuBtn)
 
 local BatBtn = Instance.new("TextButton")
 BatBtn.Parent = ScreenGui
-BatBtn.Size = UDim2.new(0,45,0,45)
-BatBtn.Position = UDim2.new(0,10,0.5,-10)
+BatBtn.Size = UDim2.new(0,38,0,32)
+BatBtn.Position = UDim2.new(0,55,0.5,-54)
 BatBtn.Text = "BAT"
 BatBtn.TextSize = 12
 BatBtn.Font = Enum.Font.GothamBold
@@ -40,8 +40,8 @@ Instance.new("UICorner",BatBtn)
 
 local SideBtn = Instance.new("TextButton")
 SideBtn.Parent = ScreenGui
-SideBtn.Size = UDim2.new(0,45,0,45)
-SideBtn.Position = UDim2.new(0,10,0.5,40)
+SideBtn.Size = UDim2.new(0,45,0,32)
+SideBtn.Position = UDim2.new(0,98,0.5,-54)
 SideBtn.Text = "LEFT"
 SideBtn.TextSize = 12
 SideBtn.Font = Enum.Font.GothamBold
@@ -55,12 +55,20 @@ Instance.new("UICorner",SideBtn)
 
 local Main = Instance.new("Frame")
 Main.Parent = ScreenGui
-Main.Size = UDim2.new(0,250,0,380)
-Main.Position = UDim2.new(0.5,-125,0.5,-190)
+Main.Size = UDim2.new(0,225,0,380)
+Main.Position = UDim2.new(0.5,-112,0.5,-190)
 Main.BackgroundColor3 = Color3.fromRGB(20,20,30)
 Main.BorderSizePixel = 0
 Instance.new("UICorner",Main)
 
+local Scroll = Instance.new("ScrollingFrame")
+Scroll.Parent = Main
+Scroll.Position = UDim2.new(0,0,0,30)
+Scroll.Size = UDim2.new(1,0,1,-30)
+Scroll.BackgroundTransparency = 1
+Scroll.ScrollBarThickness = 4
+Scroll.CanvasSize = UDim2.new(0,0,0,500)
+Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
 --------------------------------------------------
 -- TITLE BAR
 --------------------------------------------------
@@ -71,7 +79,7 @@ TitleBar.Size = UDim2.new(1,0,0,30)
 TitleBar.BackgroundTransparency = 1
 
 local Title = Instance.new("TextLabel")
-Title.Parent = TitleBar
+Title.Parent = Main
 Title.Size = UDim2.new(1,0,1,0)
 Title.BackgroundTransparency = 1
 Title.Text = "LUNAR HUB"
@@ -86,7 +94,7 @@ Title.TextSize = 16
 local function CreateBox(title,y,value)
 
 	local Label = Instance.new("TextLabel")
-	Label.Parent = Main
+	Label.Parent = Scroll
 	Label.Position = UDim2.new(0.05,0,0,y)
 	Label.Size = UDim2.new(0.9,0,0,16)
 	Label.BackgroundTransparency = 1
@@ -97,7 +105,7 @@ local function CreateBox(title,y,value)
 	Label.TextSize = 11
 
 	local Box = Instance.new("TextBox")
-	Box.Parent = Main
+	Box.Parent = Scroll
 	Box.Position = UDim2.new(0.05,0,0,y+18)
 	Box.Size = UDim2.new(0.9,0,0,28)
 	Box.Text = value
@@ -118,7 +126,7 @@ CreateBox("After Grab Speed",155,"38")
 --------------------------------------------------
 
 local ModeLabel = Instance.new("TextLabel")
-ModeLabel.Parent = Main
+ModeLabel.Parent = Scroll
 ModeLabel.Position = UDim2.new(0.05,0,0,215)
 ModeLabel.Size = UDim2.new(0.9,0,0,16)
 ModeLabel.BackgroundTransparency = 1
@@ -197,7 +205,7 @@ end)
 --------------------------------------------------
 
 local ToggleLabel = Instance.new("TextLabel")
-ToggleLabel.Parent = Main
+ToggleLabel.Parent = Scroll
 ToggleLabel.Position = UDim2.new(0.05,0,0,280)
 ToggleLabel.Size = UDim2.new(0.9,0,0,16)
 ToggleLabel.BackgroundTransparency = 1
