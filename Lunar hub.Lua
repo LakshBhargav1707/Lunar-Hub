@@ -1,5 +1,4 @@
--- LUNAR HUB (Generic Showcase UI)
--- Visual Only
+-- LUNAR HUB (Fixed Scrolling)
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
@@ -69,6 +68,7 @@ Scroll.BackgroundTransparency = 1
 Scroll.ScrollBarThickness = 4
 Scroll.CanvasSize = UDim2.new(0,0,0,500)
 Scroll.ScrollingDirection = Enum.ScrollingDirection.Y
+
 --------------------------------------------------
 -- TITLE BAR
 --------------------------------------------------
@@ -79,7 +79,7 @@ TitleBar.Size = UDim2.new(1,0,0,30)
 TitleBar.BackgroundTransparency = 1
 
 local Title = Instance.new("TextLabel")
-Title.Parent = Main
+Title.Parent = TitleBar
 Title.Size = UDim2.new(1,0,1,0)
 Title.BackgroundTransparency = 1
 Title.Text = "LUNAR HUB"
@@ -92,7 +92,6 @@ Title.TextSize = 16
 --------------------------------------------------
 
 local function CreateBox(title,y,value)
-
 	local Label = Instance.new("TextLabel")
 	Label.Parent = Scroll
 	Label.Position = UDim2.new(0.05,0,0,y)
@@ -114,20 +113,19 @@ local function CreateBox(title,y,value)
 	Box.Font = Enum.Font.Gotham
 	Box.TextSize = 13
 	Instance.new("UICorner",Box)
-
 end
 
-CreateBox("Speed Control",35,"0")
-CreateBox("Before Grab Speed",95,"38")
-CreateBox("After Grab Speed",155,"38")
+CreateBox("Speed Control",5, "0")
+CreateBox("Before Grab Speed",65, "38")
+CreateBox("After Grab Speed",125, "38")
 
 --------------------------------------------------
--- MODE LABEL
+-- MODE LABEL & BUTTONS
 --------------------------------------------------
 
 local ModeLabel = Instance.new("TextLabel")
 ModeLabel.Parent = Scroll
-ModeLabel.Position = UDim2.new(0.05,0,0,215)
+ModeLabel.Position = UDim2.new(0.05,0,0,185)
 ModeLabel.Size = UDim2.new(0.9,0,0,16)
 ModeLabel.BackgroundTransparency = 1
 ModeLabel.Text = "Autoplay Side Configuration"
@@ -136,18 +134,13 @@ ModeLabel.TextXAlignment = Enum.TextXAlignment.Left
 ModeLabel.Font = Enum.Font.Gotham
 ModeLabel.TextSize = 11
 
---------------------------------------------------
--- MODE BUTTONS
---------------------------------------------------
-
 local CurrentMode = "LEFT"
-
 local LeftBtn = Instance.new("TextButton")
 local RightBtn = Instance.new("TextButton")
 local AutoBtn = Instance.new("TextButton")
 
 local function StyleButton(btn)
-	btn.Parent = Main
+	btn.Parent = Scroll -- Fix: Scroll mein dala
 	btn.Size = UDim2.new(0,65,0,28)
 	btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
 	btn.TextColor3 = Color3.new(1,1,1)
@@ -160,9 +153,9 @@ StyleButton(LeftBtn)
 StyleButton(RightBtn)
 StyleButton(AutoBtn)
 
-LeftBtn.Position = UDim2.new(0.05,0,0,240)
-RightBtn.Position = UDim2.new(0.37,0,0,240)
-AutoBtn.Position = UDim2.new(0.69,0,0,240)
+LeftBtn.Position = UDim2.new(0.05,0,0,210)
+RightBtn.Position = UDim2.new(0.37,0,0,210)
+AutoBtn.Position = UDim2.new(0.69,0,0,210)
 
 LeftBtn.Text = "LEFT"
 RightBtn.Text = "RIGHT"
@@ -170,35 +163,19 @@ AutoBtn.Text = "AUTO"
 
 local function UpdateMode(mode)
 	CurrentMode = mode
-
 	LeftBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
 	RightBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
 	AutoBtn.BackgroundColor3 = Color3.fromRGB(35,35,50)
-
-	if mode == "LEFT" then
-		LeftBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
-	elseif mode == "RIGHT" then
-		RightBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
-	else
-		AutoBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
-	end
-
+	if mode == "LEFT" then LeftBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+	elseif mode == "RIGHT" then RightBtn.BackgroundColor3 = Color3.fromRGB(130,70,255)
+	else AutoBtn.BackgroundColor3 = Color3.fromRGB(130,70,255) end
 	SideBtn.Text = mode
 end
 
 UpdateMode("LEFT")
-
-LeftBtn.MouseButton1Click:Connect(function()
-	UpdateMode("LEFT")
-end)
-
-RightBtn.MouseButton1Click:Connect(function()
-	UpdateMode("RIGHT")
-end)
-
-AutoBtn.MouseButton1Click:Connect(function()
-	UpdateMode("AUTO")
-end)
+LeftBtn.MouseButton1Click:Connect(function() UpdateMode("LEFT") end)
+RightBtn.MouseButton1Click:Connect(function() UpdateMode("RIGHT") end)
+AutoBtn.MouseButton1Click:Connect(function() UpdateMode("AUTO") end)
 
 --------------------------------------------------
 -- TOGGLE PANEL
@@ -206,7 +183,7 @@ end)
 
 local ToggleLabel = Instance.new("TextLabel")
 ToggleLabel.Parent = Scroll
-ToggleLabel.Position = UDim2.new(0.05,0,0,280)
+ToggleLabel.Position = UDim2.new(0.05,0,0,250)
 ToggleLabel.Size = UDim2.new(0.9,0,0,16)
 ToggleLabel.BackgroundTransparency = 1
 ToggleLabel.Text = "Toggle Panel"
@@ -216,11 +193,9 @@ ToggleLabel.Font = Enum.Font.Gotham
 ToggleLabel.TextSize = 11
 
 local function CreateToggle(name,y)
-
 	local state = false
-
 	local Btn = Instance.new("TextButton")
-	Btn.Parent = Main
+	Btn.Parent = Scroll -- Fix: Scroll mein dala
 	Btn.Position = UDim2.new(0.05,0,0,y)
 	Btn.Size = UDim2.new(0.9,0,0,28)
 	Btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
@@ -231,9 +206,7 @@ local function CreateToggle(name,y)
 	Instance.new("UICorner",Btn)
 
 	Btn.MouseButton1Click:Connect(function()
-
 		state = not state
-
 		if state then
 			Btn.Text = name.." : ON"
 			Btn.BackgroundColor3 = Color3.fromRGB(130,70,255)
@@ -241,65 +214,24 @@ local function CreateToggle(name,y)
 			Btn.Text = name.." : OFF"
 			Btn.BackgroundColor3 = Color3.fromRGB(35,35,50)
 		end
-
 	end)
-
 end
 
-CreateToggle("Infinite Jump",305)
-CreateToggle("Auto Loop Steal",340)
+CreateToggle("B", 275)
+CreateToggle("A", 310)
 
---------------------------------------------------
--- MINIMIZE
---------------------------------------------------
-
-MenuBtn.MouseButton1Click:Connect(function()
-	Main.Visible = not Main.Visible
-end)
-
---------------------------------------------------
--- DRAG FROM TITLE ONLY
---------------------------------------------------
-
-local dragging = false
-local dragStart
-local startPos
-
+-- Minimizing & Dragging code remains same...
+MenuBtn.MouseButton1Click:Connect(function() Main.Visible = not Main.Visible end)
+local dragging, dragStart, startPos
 TitleBar.InputBegan:Connect(function(input)
-
-	if input.UserInputType == Enum.UserInputType.MouseButton1
-	or input.UserInputType == Enum.UserInputType.Touch then
-
-		dragging = true
-		dragStart = input.Position
-		startPos = Main.Position
-
-		input.Changed:Connect(function()
-			if input.UserInputState == Enum.UserInputState.End then
-				dragging = false
-			end
-		end)
-
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true; dragStart = input.Position; startPos = Main.Position
+		input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
 	end
-
 end)
-
 UIS.InputChanged:Connect(function(input)
-
-	if dragging and (
-		input.UserInputType == Enum.UserInputType.MouseMovement
-		or input.UserInputType == Enum.UserInputType.Touch
-	) then
-
+	if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
 		local delta = input.Position - dragStart
-
-		Main.Position = UDim2.new(
-			startPos.X.Scale,
-			startPos.X.Offset + delta.X,
-			startPos.Y.Scale,
-			startPos.Y.Offset + delta.Y
-		)
-
+		Main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 	end
-
 end)
