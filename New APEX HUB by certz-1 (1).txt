@@ -1,6 +1,6 @@
 repeat task.wait() until game:IsLoaded()
 -- ============================================================
--- APEX HUB - GLASSMORPHISM EDITION (SAVE BUTTON FIXED)
+-- SHINRA HUB - GLASSMORPHISM EDITION (SAVE BUTTON FIXED)
 -- Save button nasa BABA ng window - laging visible!
 -- ============================================================
 
@@ -57,7 +57,7 @@ end
 local function loadSettings()
     local saved = LP:GetAttribute("ApexHub_Saved")
     if not saved or saved == "" then
-        if _G.ApexHub_SavedSettings then saved = _G.ApexHub_SavedSettings end
+        if _G.SHINRA HUB_SavedSettings then saved = _G.ApexHub_SavedSettings end
     end
     if not saved or saved == "" then return false end
     
@@ -2252,8 +2252,8 @@ if LP.Character then
     end)
 end
 
-print("✅ APEX HUB - FIXED with SAVE BUTTON AT THE BOTTOM!")
+print("✅ SHINRA HUB - FIXED with SAVE BUTTON AT THE BOTTOM!")
 print("💾 SAVE button is ALWAYS VISIBLE at the bottom of the window!")
-print("🎨 Pink Theme: #FF4FD8")
+print("🎨 Red Theme: #FF0000")
 print("📑 Tabs: MAIN | ANIMATION | KEYBINDS")
 print("📱 Mobile Buttons: 7 buttons (draggable)")
